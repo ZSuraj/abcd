@@ -170,7 +170,7 @@ export function ClientManagement({
                           {clientDocuments.length} documents
                         </span>
                         <span>•</span>
-                        <span>{client.tasksCount} tasks</span>
+                        <span>{client.no_of_tasks} tasks</span>
                       </div>
                     </div>
                   </div>
