@@ -206,7 +206,7 @@ export function AllTasksView({ tasks, clients, employees, onUpdateTaskStatus }: 
                     
                     <div className="flex items-center gap-1">
                       <Clock className="h-4 w-4" />
-                      <span>Updated {formatDistanceToNow(new Date(task.updatedAt), { addSuffix: true })}</span>
+                      {/* <span>Updated {formatDistanceToNow(new Date(task.updatedAt), { addSuffix: true })}</span> */}
                     </div>
                   </div>
                 </div>

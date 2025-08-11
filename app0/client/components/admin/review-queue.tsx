@@ -1,22 +1,39 @@
-'use client';
+"use client";
 
-import { Task, Client } from '@/types';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { CheckCircle, Clock, User as UserIcon, AlertCircle } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
+import { Task, Client } from "@/types";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  CheckCircle,
+  Clock,
+  User as UserIcon,
+  AlertCircle,
+} from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
+import { useEffect } from "react";
+import { SERVER_URL } from "@/app/page";
 
 interface ReviewQueueProps {
   tasks: Task[];
   clients: Client[];
-  onUpdateTaskStatus: (taskId: string, status: Task['status']) => void;
+  onUpdateTaskStatus: (taskId: string, status: Task["status"]) => void;
 }
 
-export function ReviewQueue({ tasks, clients, onUpdateTaskStatus }: ReviewQueueProps) {
+export function ReviewQueue({
+  tasks,
+  clients,
+  onUpdateTaskStatus,
+}: ReviewQueueProps) {
   const getClientName = (clientId: string) => {
-    const client = clients.find(c => c.id === clientId);
-    return client?.name || 'Unknown Client';
+    const client = clients.find((c) => c.id === clientId);
+    return client?.name || "Unknown Client";
   };
 
   const sortedTasks = [...tasks].sort((a, b) => {
@@ -25,19 +42,23 @@ export function ReviewQueue({ tasks, clients, onUpdateTaskStatus }: ReviewQueueP
   });
 
   const handleApprove = (taskId: string) => {
-    onUpdateTaskStatus(taskId, 'completed');
+    onUpdateTaskStatus(taskId, "completed");
   };
 
   const handleReject = (taskId: string) => {
-    onUpdateTaskStatus(taskId, 'in-progress');
+    onUpdateTaskStatus(taskId, "in-progress");
   };
 
   if (tasks.length === 0) {
     return (
       <div className="text-center py-12">
         <CheckCircle className="h-12 w-12 mx-auto text-green-500 mb-4" />
-        <h3 className="text-lg font-medium text-gray-900 mb-2">No tasks in review</h3>
-        <p className="text-gray-600">All tasks have been processed. Great job!</p>
+        <h3 className="text-lg font-medium text-gray-900 mb-2">
+          No tasks in review
+        </h3>
+        <p className="text-gray-600">
+          All tasks have been processed. Great job!
+        </p>
       </div>
     );
   }
@@ -51,7 +72,9 @@ export function ReviewQueue({ tasks, clients, onUpdateTaskStatus }: ReviewQueueP
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Awaiting Review</p>
-                <p className="text-2xl font-bold text-orange-600">{tasks.length}</p>
+                <p className="text-2xl font-bold text-orange-600">
+                  {tasks.length}
+                </p>
               </div>
               <AlertCircle className="h-6 w-6 text-orange-600" />
             </div>
@@ -64,7 +87,7 @@ export function ReviewQueue({ tasks, clients, onUpdateTaskStatus }: ReviewQueueP
               <div>
                 <p className="text-sm text-gray-600">High Priority</p>
                 <p className="text-2xl font-bold text-red-600">
-                  {tasks.filter(t => t.priority === 'high').length}
+                  {tasks.filter((t) => t.priority === "high").length}
                 </p>
               </div>
               <AlertCircle className="h-6 w-6 text-red-600" />
@@ -87,8 +110,10 @@ export function ReviewQueue({ tasks, clients, onUpdateTaskStatus }: ReviewQueueP
 
       {/* Review Tasks */}
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-gray-900">Tasks Pending Review</h3>
-        
+        <h3 className="text-lg font-semibold text-gray-900">
+          Tasks Pending Review
+        </h3>
+
         {sortedTasks.map((task) => (
           <Card key={task.id} className="border-l-4 border-l-orange-400">
             <CardHeader>
@@ -97,21 +122,27 @@ export function ReviewQueue({ tasks, clients, onUpdateTaskStatus }: ReviewQueueP
                   <CardTitle className="text-lg">{task.title}</CardTitle>
                   <CardDescription>{task.description}</CardDescription>
                 </div>
-                
+
                 <div className="flex items-center gap-2">
-                  <Badge 
-                    variant="outline" 
-                    className={task.priority === 'high' ? 'border-red-200 bg-red-50 text-red-800' : 
-                              task.priority === 'medium' ? 'border-yellow-200 bg-yellow-50 text-yellow-800' :
-                              'border-green-200 bg-green-50 text-green-800'}
+                  <Badge
+                    variant="outline"
+                    className={
+                      task.priority === "high"
+                        ? "border-red-200 bg-red-50 text-red-800"
+                        : task.priority === "medium"
+                        ? "border-yellow-200 bg-yellow-50 text-yellow-800"
+                        : "border-green-200 bg-green-50 text-green-800"
+                    }
                   >
                     {task.priority.toUpperCase()}
                   </Badge>
-                  <Badge className="bg-orange-100 text-orange-800">IN REVIEW</Badge>
+                  <Badge className="bg-orange-100 text-orange-800">
+                    IN REVIEW
+                  </Badge>
                 </div>
               </div>
             </CardHeader>
-            
+
             <CardContent>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4 text-sm text-gray-600">
@@ -119,23 +150,23 @@ export function ReviewQueue({ tasks, clients, onUpdateTaskStatus }: ReviewQueueP
                     <UserIcon className="h-4 w-4" />
                     <span>{getClientName(task.clientId)}</span>
                   </div>
-                  
+
                   <div className="flex items-center gap-1">
                     <Clock className="h-4 w-4" />
-                    <span>In review for {formatDistanceToNow(new Date(task.updatedAt))}</span>
+                    {/* <span>In review for {formatDistanceToNow(new Date(task.updatedAt))}</span> */}
                   </div>
                 </div>
-                
+
                 <div className="flex items-center gap-2">
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     size="sm"
                     onClick={() => handleReject(task.id)}
                     className="hover:bg-red-50 hover:border-red-200 hover:text-red-700"
                   >
                     Send Back
                   </Button>
-                  <Button 
+                  <Button
                     size="sm"
                     onClick={() => handleApprove(task.id)}
                     className="bg-green-600 hover:bg-green-700"
