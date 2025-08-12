@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Client, User, Document } from "@/types";
 import {
   Card,
@@ -27,6 +27,7 @@ import {
   Eye,
 } from "lucide-react";
 import { ClientDocuments } from "@/components/employee/client-documents";
+import { SERVER_URL } from "@/app/page";
 
 interface ClientManagementProps {
   clients: Client[];
@@ -36,7 +37,7 @@ interface ClientManagementProps {
 }
 
 export function ClientManagement({
-  clients,
+  // clients,
   employees,
   documents,
   onReassignClient,
@@ -44,6 +45,45 @@ export function ClientManagement({
   const [searchTerm, setSearchTerm] = useState("");
   const [reassigning, setReassigning] = useState<string | null>(null);
   const [viewingClientId, setViewingClientId] = useState<string | null>(null);
+  const [allEmployees, setAllEmployees] = useState<User[]>([]);
+  const [clients, setClients] = useState<Client[]>([]);
+
+  const fetchAllEmployees = async () => {
+    const user = JSON.parse(localStorage.getItem("currentUser"));
+    if (user) {
+      const res = await fetch(`${SERVER_URL}/get-all-employees`, {
+        method: "POST",
+        headers: {
+          Authorization: user.token,
+        },
+      });
+      const data = await res.json();
+      setAllEmployees(data.data);
+      // console.log(data.data);
+    }
+  };
+
+  const fetchAllClients = async () => {
+    console.log("fetchAllClients");
+
+    const user = JSON.parse(localStorage.getItem("currentUser"));
+    if (user) {
+      const res = await fetch(`${SERVER_URL}/get-all-clients`, {
+        method: "POST",
+        headers: {
+          Authorization: user.token,
+        },
+      });
+      const data = await res.json();
+      setClients(data.data);
+      console.log(data.data);
+    }
+  };
+
+  useEffect(() => {
+    fetchAllEmployees();
+    fetchAllClients();
+  }, []);
 
   const getEmployeeName = (employeeId: string) => {
     const employee = employees.find((e) => e.id === employeeId);
@@ -54,14 +94,34 @@ export function ClientManagement({
     return documents.filter((doc) => doc.clientId === clientId);
   };
 
-  const handleReassign = async (clientId: string, newEmployeeId: string) => {
+  const handleReassign = async (
+    clientId: string,
+    newEmployeeId: string,
+    oldEmployeeId: string
+  ) => {
     setReassigning(clientId);
 
-    // Simulate API call delay
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    console.log(oldEmployeeId, clientId);
+    const user = JSON.parse(localStorage.getItem("currentUser"));
+
+    const res = await fetch(`${SERVER_URL}/reassign-employee`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: user.token,
+      },
+      body: JSON.stringify({
+        clientId,
+        newEmployeeId,
+        oldEmployeeId,
+      }),
+    });
+    const data = await res.json();
+    console.log(data);
 
     onReassignClient(clientId, newEmployeeId);
     setReassigning(null);
+    fetchAllClients();
   };
 
   const filteredClients = clients.filter(
@@ -90,6 +150,8 @@ export function ClientManagement({
       );
     }
   }
+
+  console.log(clients);
 
   return (
     <div className="space-y-6">
@@ -192,9 +254,9 @@ export function ClientManagement({
                     </div> */}
 
                     <Select
-                      value={client.assignedEmployeeId}
+                      value={client.employee?.id}
                       onValueChange={(value) =>
-                        handleReassign(client.id, value)
+                        handleReassign(client.id, value, client.employee?.id)
                       }
                       disabled={isReassigning}
                     >
@@ -202,7 +264,7 @@ export function ClientManagement({
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        {employees.map((employee) => (
+                        {allEmployees.map((employee) => (
                           <SelectItem key={employee.id} value={employee.id}>
                             {employee.name}
                           </SelectItem>

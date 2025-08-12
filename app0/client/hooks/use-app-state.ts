@@ -39,7 +39,7 @@ export function useAppState() {
     const savedTasks = localStorage.getItem("tasks");
     const savedNotifications = localStorage.getItem("notifications");
 
-    console.log(savedUser);
+    // console.log(savedUser);
 
     if (savedUser) {
       setCurrentUser(JSON.parse(savedUser));
@@ -110,8 +110,6 @@ export function useAppState() {
     // const task = tasks.find((t) => t.id === taskId);
     if (!taskId) return;
 
-    console.log(taskId, status);
-
     const response = await fetch(`${SERVER_URL}/update-task`, {
       method: "POST",
       headers: {
@@ -125,7 +123,6 @@ export function useAppState() {
 
     if (response.ok) {
       const data = await response.json();
-      console.log(data);
       await getTasksByEmployee(currentUser);
     }
   };
@@ -250,7 +247,6 @@ export function useAppState() {
       }),
     });
     const data = await response.json();
-    console.log(data);
     localStorage.setItem("tasks", JSON.stringify(data.data));
     setTasks(data.data);
     // return data.data;
