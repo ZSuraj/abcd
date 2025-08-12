@@ -46,11 +46,7 @@ export default function Home() {
     return <div>Loading app state...</div>;
   }
 
-  console.log(isInitialized);
-
   if (!currentUser) {
-    console.log(111);
-
     // return <RoleSwitcher users={mockUsers} onSelectUser={loginAs} />;
     return router.push("/login");
   }
