@@ -42,6 +42,7 @@ export function AllTasksView({ tasks, clients, employees, onUpdateTaskStatus }: 
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<Task['status'] | 'all'>('all');
   const [employeeFilter, setEmployeeFilter] = useState('all');
+  const allEmployees = JSON.parse(localStorage.getItem("allEmployees"));
 
   const getClientName = (clientId: string) => {
     const client = clients.find(c => c.id === clientId);
@@ -60,7 +61,7 @@ export function AllTasksView({ tasks, clients, employees, onUpdateTaskStatus }: 
                          getClientName(task.clientId).toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesStatus = statusFilter === 'all' || task.status === statusFilter;
-    const matchesEmployee = employeeFilter === 'all' || task.employeeId === employeeFilter;
+    const matchesEmployee = employeeFilter === 'all' || task.employee_name === employeeFilter;
     
     return matchesSearch && matchesStatus && matchesEmployee;
   });
@@ -153,8 +154,8 @@ export function AllTasksView({ tasks, clients, employees, onUpdateTaskStatus }: 
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Employees</SelectItem>
-                {employees.map(employee => (
-                  <SelectItem key={employee.id} value={employee.id}>
+                {allEmployees.map(employee => (
+                  <SelectItem key={employee.id} value={employee.name}>
                     {employee.name}
                   </SelectItem>
                 ))}
@@ -197,11 +198,11 @@ export function AllTasksView({ tasks, clients, employees, onUpdateTaskStatus }: 
                   <div className="flex items-center gap-4 text-sm text-gray-600">
                     <div className="flex items-center gap-1">
                       <UserIcon className="h-4 w-4" />
-                      <span>{getClientName(task.clientId)}</span>
+                      <span>{task.client_name}</span>
                     </div>
                     
                     <div className="flex items-center gap-1">
-                      <span>Assigned to: {getEmployeeName(task.employeeId)}</span>
+                      <span>Assigned to: {task.employee_name}</span>
                     </div>
                     
                     <div className="flex items-center gap-1">
