@@ -59,6 +59,7 @@ export function ClientManagement({
       });
       const data = await res.json();
       setAllEmployees(data.data);
+      localStorage.setItem("allEmployees", JSON.stringify(data.data));
       // console.log(data.data);
     }
   };
@@ -126,8 +127,8 @@ export function ClientManagement({
 
   const filteredClients = clients.filter(
     (client) =>
-      client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      client.email.toLowerCase().includes(searchTerm.toLowerCase())
+      client.name.toLowerCase().includes(searchTerm.toLowerCase()) 
+      // client.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   // Employee stats
