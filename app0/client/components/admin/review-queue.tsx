@@ -19,6 +19,7 @@ import {
 import { formatDistanceToNow } from "date-fns";
 import { useEffect } from "react";
 import { SERVER_URL } from "@/app/page";
+import { timeAgo } from "@/lib/utils";
 
 interface ReviewQueueProps {
   tasks: Task[];
@@ -148,12 +149,13 @@ export function ReviewQueue({
                 <div className="flex items-center gap-4 text-sm text-gray-600">
                   <div className="flex items-center gap-1">
                     <UserIcon className="h-4 w-4" />
-                    <span>{getClientName(task.clientId)}</span>
+                    <span>{task.client_name}</span>
                   </div>
 
                   <div className="flex items-center gap-1">
                     <Clock className="h-4 w-4" />
-                    {/* <span>In review for {formatDistanceToNow(new Date(task.updatedAt))}</span> */}
+                    {/* <span>In review for {task.updated_at}</span> */}
+                    <span>{timeAgo(task.updated_at)}</span>
                   </div>
                 </div>
 

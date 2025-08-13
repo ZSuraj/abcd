@@ -49,14 +49,14 @@ export function EmployeeDashboard({
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
-      <div className="text-center mb-8">
+      {/* <div className="text-center mb-8">
         <h2 className="text-3xl font-bold text-gray-900 mb-2">
           Welcome, {user.name}!
         </h2>
         <p className="text-gray-600">
           Manage your assigned tasks and client documents.
         </p>
-      </div>
+      </div> */}
 
       <Tabs defaultValue="tasks" className="space-y-6">
         <TabsList className="grid w-full grid-cols-2">
