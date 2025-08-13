@@ -28,6 +28,7 @@ import {
   Paperclip,
 } from "lucide-react";
 import { format, formatDistanceToNow, isAfter, parse } from "date-fns";
+import { SERVER_URL } from "@/app/page";
 
 interface TasksViewProps {
   user: User;
@@ -133,16 +134,31 @@ export function TasksView({
       .then((data) => window.open(data.url, "_blank"));
   };
 
-  const handleDownloadDocument = (docKey: string) => {
-    // Option 2: Download
-    fetch(`/api/docs/download?key=${encodeURIComponent(docKey)}`)
-      .then((res) => res.json())
-      .then((data) => {
-        const link = document.createElement("a");
-        link.href = data.url;
-        link.download = docKey.split("/").pop(); // filename only
-        link.click();
-      });
+  const handleDownloadDocument = async (docKey: string) => {
+    const user = JSON.parse(localStorage.getItem("currentUser"));
+    const response = await fetch(`${SERVER_URL}/get-file`, {
+      method: "POST",
+      headers: {
+        // "Content-Type": "application/json",
+        Authorization: user.token,
+      },
+      body: JSON.stringify({ key: docKey }),
+    });
+
+    if (!response.ok) {
+      console.error("Failed to download file");
+      return;
+    }
+
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = docKey.key.split("/").pop() || "download";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
   };
 
   return (
@@ -340,19 +356,21 @@ export function TasksView({
                         (docKey: string, index: number) => (
                           <li key={index} className="flex items-center gap-2">
                             <Paperclip className="h-4 w-4" />
-                            <span className="truncate max-w-xs">{docKey.key}</span>
+                            <span className="truncate max-w-xs">
+                              {docKey.key}
+                            </span>
                             {/* <button
                               onClick={() => handleViewDocument(docKey)}
                               className="text-blue-600 hover:underline text-sm"
                             >
                               View
-                            </button>
+                            </button> */}
                             <button
                               onClick={() => handleDownloadDocument(docKey)}
                               className="text-blue-600 hover:underline text-sm"
                             >
                               Download
-                            </button> */}
+                            </button>
                           </li>
                         )
                       )}

@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { User, Task, Client, Document } from '@/types';
-import { AllTasksView } from './all-tasks-view';
-import { ClientManagement } from './client-management';
-import { ReviewQueue } from './review-queue';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
+import { useState } from "react";
+import { User, Task, Client, Document } from "@/types";
+import { AllTasksView } from "./all-tasks-view";
+import { ClientManagement } from "./client-management";
+import { ReviewQueue } from "./review-queue";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
 
 interface AdminDashboardProps {
   user: User;
@@ -14,21 +14,23 @@ interface AdminDashboardProps {
   clients: Client[];
   documents: Document[];
   employees: User[];
-  onUpdateTaskStatus: (taskId: string, status: Task['status']) => void;
+  onUpdateTaskStatus: (taskId: string, status: Task["status"]) => void;
   onReassignClient: (clientId: string, newEmployeeId: string) => void;
 }
 
-export function AdminDashboard({ 
-  user, 
-  tasks, 
-  clients, 
-  documents, 
+export function AdminDashboard({
+  user,
+  tasks,
+  clients,
+  documents,
   employees,
   onUpdateTaskStatus,
-  onReassignClient 
+  onReassignClient,
 }: AdminDashboardProps) {
-  const reviewTasks = tasks.filter(task => task.status === 'in-review');
-  const activeTasks = tasks.filter(task => ['pending', 'in-progress', 'in-review'].includes(task.status));
+  const reviewTasks = tasks.filter((task) => task.status === "in-review");
+  const activeTasks = tasks.filter((task) =>
+    ["pending", "in-progress", "in-review"].includes(task.status)
+  );
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
@@ -57,7 +59,10 @@ export function AdminDashboard({
               {tasks.length}
             </Badge>
           </TabsTrigger>
-          <TabsTrigger value="client-management" className="flex items-center gap-2">
+          <TabsTrigger
+            value="client-management"
+            className="flex items-center gap-2"
+          >
             Client Management
             <Badge variant="secondary" className="ml-1">
               {clients.length}

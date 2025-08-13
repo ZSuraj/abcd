@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/select";
 import { DocumentUpload } from "../client/document-upload";
 import { useState } from "react";
+import { SidebarTrigger } from "../ui/sidebar";
 
 interface NavbarProps {
   user: User;
@@ -62,12 +63,14 @@ export function Navbar({
   return (
     <nav className="bg-white border-b border-gray-200 px-4 py-3 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <h1 className="text-xl font-semibold text-gray-900">Task Manager</h1>
+        <SidebarTrigger />
+
+        {/* <div className="flex items-center space-x-4">
+          <h1 className="text-xl font-semibold text-gray-900">App0</h1>
           <Badge className={getRoleColor(user.type)}>
             {user.type.charAt(0).toUpperCase() + user.type.slice(1)}
           </Badge>
-        </div>
+        </div> */}
 
         <div className="flex items-center space-x-4">
           {(user.type === "admin" || user.type === "employee") && (
