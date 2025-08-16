@@ -66,49 +66,6 @@ export function ReviewQueue({
 
   return (
     <div className="space-y-6">
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="border-orange-200 bg-orange-50/30">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Awaiting Review</p>
-                <p className="text-2xl font-bold text-orange-600">
-                  {tasks.length}
-                </p>
-              </div>
-              <AlertCircle className="h-6 w-6 text-orange-600" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-red-200 bg-red-50/30">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">High Priority</p>
-                <p className="text-2xl font-bold text-red-600">
-                  {tasks.filter((t) => t.priority === "high").length}
-                </p>
-              </div>
-              <AlertCircle className="h-6 w-6 text-red-600" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-blue-200 bg-blue-50/30">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Avg. Review Time</p>
-                <p className="text-2xl font-bold text-blue-600">2h</p>
-              </div>
-              <Clock className="h-6 w-6 text-blue-600" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
       {/* Review Tasks */}
       <div className="space-y-4">
         <h3 className="text-lg font-semibold text-gray-900">

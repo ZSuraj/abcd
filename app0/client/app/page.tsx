@@ -7,6 +7,7 @@ import { ClientDashboard } from "@/components/client/client-dashboard";
 import { EmployeeDashboard } from "@/components/employee/employee-dashboard";
 import { AdminDashboard } from "@/components/admin/admin-dashboard";
 import { useRouter } from "next/navigation";
+import { AppSidebar } from "@/components/layout/app-sidebar";
 
 export const SERVER_URL = "http://localhost:8787";
 
@@ -52,44 +53,41 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navbar
-        user={currentUser?.data.user}
-        unreadCount={unreadNotifications.length}
-        onLogout={logout}
-        onMarkAllRead={markAllNotificationsRead}
-      />
+    <div className="min-h-screen bg-gray-50 flex">
+      <AppSidebar />
+      <main className="w-full">
+        <Navbar user={currentUser.data.user} />
+        <div className="p-6">
+          {currentUser?.data.user.type === "client" && (
+            <ClientDashboard
+              user={currentUser.data.user}
+              documents={documents}
+              onUploadDocuments={handleUploadDocuments}
+            />
+          )}
 
-      <main className="p-6">
-        {currentUser?.data.user.type === "client" && (
-          <ClientDashboard
-            user={currentUser.data.user}
-            documents={documents}
-            onUploadDocuments={handleUploadDocuments}
-          />
-        )}
+          {currentUser?.data.user.type === "employee" && (
+            <EmployeeDashboard
+              user={currentUser.data.user}
+              tasks={tasks}
+              clients={clients}
+              documents={documents}
+              onUpdateTaskStatus={updateTaskStatus}
+            />
+          )}
 
-        {currentUser?.data.user.type === "employee" && (
-          <EmployeeDashboard
-            user={currentUser.data.user}
-            tasks={tasks}
-            clients={clients}
-            documents={documents}
-            onUpdateTaskStatus={updateTaskStatus}
-          />
-        )}
-
-        {currentUser?.data.user.type === "admin" && (
-          <AdminDashboard
-            user={currentUser?.data.user}
-            tasks={tasks}
-            clients={clients}
-            documents={documents}
-            employees={employees}
-            onUpdateTaskStatus={updateTaskStatus}
-            onReassignClient={reassignClient}
-          />
-        )}
+          {currentUser?.data.user.type === "admin" && (
+            <AdminDashboard
+              user={currentUser?.data.user}
+              tasks={tasks}
+              clients={clients}
+              documents={documents}
+              employees={employees}
+              onUpdateTaskStatus={updateTaskStatus}
+              onReassignClient={reassignClient}
+            />
+          )}
+        </div>
       </main>
     </div>
   );

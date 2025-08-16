@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { format } from "timeago.js";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -30,4 +31,14 @@ export function timeAgo(timestamp) {
   }
 
   return "just now";
+}
+
+export function formatISTTimeAgo(date) {
+  const inputDate = new Date(date);
+
+  // Convert UTC date to IST by adding +5:30 offset
+  const ISTOffset = 5.5 * 60 * 60 * 1000; // 5 hours 30 minutes in ms
+  const istDate = new Date(inputDate.getTime() + ISTOffset);
+
+  return format(istDate);
 }
