@@ -164,7 +164,7 @@ export function TasksView({
   return (
     <div className="space-y-6">
       {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      {/* <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card className="border-gray-200">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
@@ -228,7 +228,7 @@ export function TasksView({
             </div>
           </CardContent>
         </Card>
-      </div>
+      </div> */}
 
       {/* Task List */}
       <div className="space-y-4">

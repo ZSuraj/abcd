@@ -30,6 +30,7 @@ import {
 import { DocumentUpload } from "../client/document-upload";
 import { useState } from "react";
 import { SidebarTrigger } from "../ui/sidebar";
+import { logout } from "@/lib/auth";
 
 interface NavbarProps {
   user: User;
@@ -51,19 +52,14 @@ const getRoleColor = (role: UserRole) => {
   }
 };
 
-export function Navbar({
-  user,
-  unreadCount = 0,
-  onLogout,
-  onMarkAllRead,
-}: NavbarProps) {
+export function Navbar({ user, unreadCount = 0, onMarkAllRead }: NavbarProps) {
   const clients = JSON.parse(localStorage.getItem("clients") || "[]");
   const [selectedClient, setSelectedClient] = useState<number>(0);
 
   return (
     <nav className="bg-white border-b border-gray-200 px-4 py-3 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
-        <SidebarTrigger />
+        <SidebarTrigger className="w-4 h-4" />
 
         {/* <div className="flex items-center space-x-4">
           <h1 className="text-xl font-semibold text-gray-900">App0</h1>
@@ -112,7 +108,7 @@ export function Navbar({
               <DrawerTrigger asChild>
                 <Button variant="ghost" size="sm" className="px-2">
                   <Upload className="h-4 w-4 mr-1" />
-                  Upload
+                  <span className="font-normal">Upload</span>
                 </Button>
               </DrawerTrigger>
               <DrawerContent>
@@ -123,7 +119,7 @@ export function Navbar({
                       Choose files to upload from your device.
                     </DrawerDescription>
                   </DrawerHeader> */}
-                  <div className="p-4 space-y-4">
+                  <div className="py-4 space-y-4">
                     {/* Client Dropdown */}
                     <div>
                       <label
@@ -190,11 +186,13 @@ export function Navbar({
                 className="flex items-center space-x-2 px-2 text-sm text-gray-700 cursor-pointer"
               >
                 <UserIcon className="h-4 w-4" />
-                <span>{user.name}</span>
+                <span className="font-normal capitalize">{user.name}</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-40">
-              <DropdownMenuItem onClick={onLogout}>Log Out</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => logout()}>
+                Log Out
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 

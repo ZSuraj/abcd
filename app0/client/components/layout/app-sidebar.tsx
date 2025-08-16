@@ -1,16 +1,4 @@
-import {
-  Calendar,
-  Circle,
-  GalleryVerticalEnd,
-  Hash,
-  HashIcon,
-  Home,
-  Inbox,
-  Search,
-  Settings,
-  SquareCheck,
-  Users,
-} from "lucide-react";
+import { Circle, Home, SquareCheck, Users, FolderOpen } from "lucide-react";
 
 import {
   Sidebar,
@@ -42,6 +30,11 @@ const items = [
     url: "/clients",
     icon: Users,
   },
+  {
+    title: "Documents",
+    url: "/documents",
+    icon: FolderOpen,
+  },
 ];
 
 export function AppSidebar() {
@@ -50,16 +43,11 @@ export function AppSidebar() {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
-              <a href="#">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg">
-                  <Circle className="size-4" />
-                </div>
-                <div className="flex flex-col gap-0.5 leading-none">
-                  <span className="font-medium">App0</span>
-                  {/* <span className="">v1.0.0</span> */}
-                </div>
-              </a>
+            <SidebarMenuButton asChild>
+              <Link href="/" className="h-[48px]">
+                <Circle className="h-4 w-4" />
+                <span>App0</span>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
