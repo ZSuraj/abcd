@@ -29,7 +29,7 @@ export default function Home() {
     getUnreadNotifications,
   } = useAppState();
 
-  const employees = mockUsers.filter((user) => user.type === "employee");
+  const employees = JSON.parse(localStorage.getItem("allEmployees") || "[]");
   const unreadNotifications = currentUser
     ? getUnreadNotifications(currentUser.id)
     : [];

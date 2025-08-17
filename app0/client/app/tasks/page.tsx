@@ -18,7 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useAppState } from "@/hooks/use-app-state";
+
 import { timeAgo } from "@/lib/utils";
 import {
   CalendarDays,
@@ -33,12 +33,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-interface TasksViewProps {
-  user: User;
-  tasks: Task[];
-  clients: Client[];
-  onUpdateTaskStatus: (taskId: string, status: Task["status"]) => void;
-}
+
 
 const getStatusColor = (status: Task["status"]) => {
   switch (status) {
@@ -133,28 +128,14 @@ export default function Tasks() {
     window.URL.revokeObjectURL(url);
   };
 
-  const { updateTaskStatus } = useAppState();
 
-  const handleApprove = (taskId: string) => {
-    updateTaskStatus(taskId, "completed");
-  };
-
-  const handleReject = (taskId: string) => {
-    updateTaskStatus(taskId, "in-progress");
-  };
 
   if (!currentUser) {
     // return <RoleSwitcher users={mockUsers} onSelectUser={loginAs} />;
     return router.push("/login");
   }
 
-  const stats = {
-    total: tasks.length,
-    pending: tasks.filter((t) => t.status === "pending").length,
-    inProgress: tasks.filter((t) => t.status === "in-progress").length,
-    inReview: tasks.filter((t) => t.status === "in-review").length,
-    completed: tasks.filter((t) => t.status === "completed").length,
-  };
+
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
@@ -264,12 +245,10 @@ export default function Tasks() {
                         <div className="flex items-center gap-2">
                           <Select
                             value={task.status}
-                            onValueChange={(value) =>
-                              onUpdateTaskStatus(
-                                task.id,
-                                value as Task["status"]
-                              )
-                            }
+                            onValueChange={(value) => {
+                              // TODO: Implement task status update
+                              console.log("Update task status:", task.id, value);
+                            }}
                           >
                             <SelectTrigger className="w-32">
                               <SelectValue />
@@ -397,14 +376,20 @@ export default function Tasks() {
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => handleReject(task.id)}
+                              onClick={() => {
+                                // TODO: Implement reject functionality
+                                console.log("Reject task:", task.id);
+                              }}
                               className="hover:bg-red-50 hover:border-red-200 hover:text-red-700"
                             >
                               Send Back
                             </Button>
                             <Button
                               size="sm"
-                              onClick={() => handleApprove(task.id)}
+                              onClick={() => {
+                                // TODO: Implement approve functionality
+                                console.log("Approve task:", task.id);
+                              }}
                               className="bg-green-600 hover:bg-green-700"
                             >
                               <CheckCircle className="h-4 w-4 mr-1" />
@@ -418,49 +403,7 @@ export default function Tasks() {
               </div>
               {/* Task List */}
 
-              {/* Stats Overview */}
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                <Card>
-                  <CardContent className="p-4 text-center">
-                    <p className="text-2xl font-bold text-gray-800">
-                      {stats.total}
-                    </p>
-                    <p className="text-sm text-gray-600">Total Tasks</p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent className="p-4 text-center">
-                    <p className="text-2xl font-bold text-gray-600">
-                      {stats.pending}
-                    </p>
-                    <p className="text-sm text-gray-600">Pending</p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent className="p-4 text-center">
-                    <p className="text-2xl font-bold text-blue-600">
-                      {stats.inProgress}
-                    </p>
-                    <p className="text-sm text-gray-600">In Progress</p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent className="p-4 text-center">
-                    <p className="text-2xl font-bold text-orange-600">
-                      {stats.inReview}
-                    </p>
-                    <p className="text-sm text-gray-600">In Review</p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent className="p-4 text-center">
-                    <p className="text-2xl font-bold text-green-600">
-                      {stats.completed}
-                    </p>
-                    <p className="text-sm text-gray-600">Completed</p>
-                  </CardContent>
-                </Card>
-              </div>
+
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-semibold text-gray-900">

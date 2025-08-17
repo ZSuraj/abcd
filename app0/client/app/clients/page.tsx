@@ -38,8 +38,11 @@ import { AppSidebar } from "@/components/layout/app-sidebar";
 import { Navbar } from "@/components/layout/navbar";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
+import { useAppState } from "@/hooks/use-app-state";
 
 export default function Clients() {
+
+  const {reassignClient} = useAppState()
   const [selectedClient, setSelectedClient] = useState<number | null>(null);
   const router = useRouter();
 
@@ -181,7 +184,7 @@ export default function Clients() {
     const data = await res.json();
     console.log(data);
 
-    onReassignClient(clientId, newEmployeeId);
+    reassignClient(clientId, newEmployeeId);
     setReassigning(null);
     fetchAllClients();
   };
