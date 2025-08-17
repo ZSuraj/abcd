@@ -13,7 +13,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
-import { Upload, FileText, Image, X, CheckCircle } from "lucide-react";
+import {
+  Upload,
+  FileText,
+  Image,
+  X,
+  CheckCircle,
+  FileIcon,
+} from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -23,6 +30,7 @@ import {
 import { Badge } from "../ui/badge";
 import { handleUploadDocuments } from "@/lib/data";
 import { Client } from "@/types";
+import { useRouter } from "next/navigation";
 
 interface DocumentUploadProps {
   onUploadDocuments: (files: File[]) => void;
@@ -58,6 +66,8 @@ export function DocumentUpload({
   const [showCategoryDialog, setShowCategoryDialog] = useState(false);
   const [selectedCategory, setSelectedCategory] =
     useState<DocumentCategory>(null);
+
+  const router = useRouter();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -278,6 +288,16 @@ export function DocumentUpload({
                 selectedFiles.length !== 1 ? "s" : ""
               }`}
         </Button>
+        <div className="w-full flex items-center justify-center">
+          <Button
+            variant="link"
+            onClick={() => router.push("/documents")}
+            className="flex justify-center"
+          >
+            <FileIcon className="h-4 w-4 mr-2" />
+            View Documents
+          </Button>
+        </div>
       </CardContent>
 
       {/* category dialog */}

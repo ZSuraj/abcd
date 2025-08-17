@@ -12,29 +12,45 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
+import { getCurrentUser } from "@/lib/auth";
 
-// Menu items.
+// Assume userRole is available from auth context or props
+const userRole = getCurrentUser()?.data.user.type;
+
 const items = [
   {
     title: "Home",
     url: "/",
     icon: Home,
   },
-  {
-    title: "Tasks",
-    url: "/tasks",
-    icon: SquareCheck,
-  },
-  {
-    title: "Clients",
-    url: "/clients",
-    icon: Users,
-  },
-  {
-    title: "Documents",
-    url: "/documents",
-    icon: FolderOpen,
-  },
+  ...(userRole !== "client"
+    ? [
+        {
+          title: "Tasks",
+          url: "/tasks",
+          icon: SquareCheck,
+        },
+      ]
+    : []),
+  ...(userRole !== "client"
+    ? [
+        {
+          title: "Clients",
+          url: "/clients",
+          icon: Users,
+        },
+      ]
+    : []),
+  // Conditionally add "Documents" if user is admin
+  ...(userRole !== "employee"
+    ? [
+        {
+          title: "Documents",
+          url: "/documents",
+          icon: FolderOpen,
+        },
+      ]
+    : []),
 ];
 
 export function AppSidebar() {

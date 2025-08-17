@@ -54,7 +54,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
-      <AppSidebar />
+      {currentUser.data.user.type !== "client" && <AppSidebar />}
       <main className="w-full">
         <Navbar user={currentUser.data.user} />
         <div className="p-6">

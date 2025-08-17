@@ -7,29 +7,29 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
-import { 
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { 
-  Search, 
-  Filter, 
-  FileIcon, 
-  Download, 
-  Eye, 
+import {
+  Search,
+  Filter,
+  FileIcon,
+  Download,
+  Eye,
   Trash2,
   Calendar,
-  FileText
+  FileText,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { isAuthenticated, logout } from "@/lib/auth";
@@ -50,7 +50,9 @@ export default function DocumentsPage() {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [filteredDocuments, setFilteredDocuments] = useState<Document[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<DocumentCategory | "all">("all");
+  const [selectedCategory, setSelectedCategory] = useState<
+    DocumentCategory | "all"
+  >("all");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -65,7 +67,7 @@ export default function DocumentsPage() {
       category: "Sales",
       size: 2048576,
       uploadedAt: "2024-01-15T10:30:00Z",
-      status: "processed"
+      status: "processed",
     },
     {
       id: "2",
@@ -73,7 +75,7 @@ export default function DocumentsPage() {
       category: "Purchase",
       size: 512000,
       uploadedAt: "2024-01-14T14:20:00Z",
-      status: "processed"
+      status: "processed",
     },
     {
       id: "3",
@@ -81,7 +83,7 @@ export default function DocumentsPage() {
       category: "Expense",
       size: 1024000,
       uploadedAt: "2024-01-13T09:15:00Z",
-      status: "processing"
+      status: "processing",
     },
     {
       id: "4",
@@ -89,7 +91,7 @@ export default function DocumentsPage() {
       category: "Bank Statement",
       size: 1536000,
       uploadedAt: "2024-01-12T16:45:00Z",
-      status: "processed"
+      status: "processed",
     },
     {
       id: "5",
@@ -97,8 +99,8 @@ export default function DocumentsPage() {
       category: "Sales",
       size: 3072000,
       uploadedAt: "2024-01-11T11:20:00Z",
-      status: "failed"
-    }
+      status: "failed",
+    },
   ];
 
   useEffect(() => {
@@ -113,8 +115,8 @@ export default function DocumentsPage() {
     try {
       setLoading(true);
       // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
       // Replace this with actual API call
       // const token = localStorage.getItem("authToken");
       // const response = await fetch(`${SERVER_URL}/documents`, {
@@ -122,7 +124,7 @@ export default function DocumentsPage() {
       // });
       // const data = await response.json();
       // setDocuments(data.documents);
-      
+
       setDocuments(mockDocuments);
       setFilteredDocuments(mockDocuments);
     } catch (err) {
@@ -142,14 +144,14 @@ export default function DocumentsPage() {
 
     // Filter by search query
     if (searchQuery) {
-      filtered = filtered.filter(doc => 
+      filtered = filtered.filter((doc) =>
         doc.name.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
     // Filter by category
     if (selectedCategory !== "all") {
-      filtered = filtered.filter(doc => doc.category === selectedCategory);
+      filtered = filtered.filter((doc) => doc.category === selectedCategory);
     }
 
     setFilteredDocuments(filtered);
@@ -159,7 +161,7 @@ export default function DocumentsPage() {
     const variants = {
       processed: "default",
       processing: "secondary",
-      failed: "destructive"
+      failed: "destructive",
     } as const;
 
     return (
@@ -174,7 +176,7 @@ export default function DocumentsPage() {
       Sales: "bg-blue-100 text-blue-800",
       Purchase: "bg-green-100 text-green-800",
       Expense: "bg-yellow-100 text-yellow-800",
-      "Bank Statement": "bg-purple-100 text-purple-800"
+      "Bank Statement": "bg-purple-100 text-purple-800",
     };
 
     return (
@@ -198,7 +200,7 @@ export default function DocumentsPage() {
       month: "short",
       day: "numeric",
       hour: "2-digit",
-      minute: "2-digit"
+      minute: "2-digit",
     });
   };
 
@@ -216,7 +218,7 @@ export default function DocumentsPage() {
     // Implement document deletion logic
     if (confirm(`Are you sure you want to delete "${document.name}"?`)) {
       console.log("Deleting document:", document);
-      setDocuments(prev => prev.filter(doc => doc.id !== document.id));
+      setDocuments((prev) => prev.filter((doc) => doc.id !== document.id));
     }
   };
 
@@ -232,7 +234,6 @@ export default function DocumentsPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex">
-        <AppSidebar />
         <main className="w-full">
           <Navbar user={currentUser.data.user} onLogout={handleLogout} />
           <div className="p-6">
@@ -250,7 +251,7 @@ export default function DocumentsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
-      <AppSidebar />
+      {currentUser.data.user.type !== "client" && <AppSidebar />}
       <main className="w-full">
         <Navbar user={currentUser.data.user} onLogout={handleLogout} />
         <div className="p-6">
@@ -282,28 +283,40 @@ export default function DocumentsPage() {
                       className="pl-10"
                     />
                   </div>
-                  
+
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="outline" className="min-w-[140px]">
                         <Filter className="h-4 w-4 mr-2" />
-                        {selectedCategory === "all" ? "All Categories" : selectedCategory}
+                        {selectedCategory === "all"
+                          ? "All Categories"
+                          : selectedCategory}
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
-                      <DropdownMenuItem onClick={() => setSelectedCategory("all")}>
+                      <DropdownMenuItem
+                        onClick={() => setSelectedCategory("all")}
+                      >
                         All Categories
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => setSelectedCategory("Sales")}>
+                      <DropdownMenuItem
+                        onClick={() => setSelectedCategory("Sales")}
+                      >
                         Sales
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => setSelectedCategory("Purchase")}>
+                      <DropdownMenuItem
+                        onClick={() => setSelectedCategory("Purchase")}
+                      >
                         Purchase
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => setSelectedCategory("Expense")}>
+                      <DropdownMenuItem
+                        onClick={() => setSelectedCategory("Expense")}
+                      >
                         Expense
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => setSelectedCategory("Bank Statement")}>
+                      <DropdownMenuItem
+                        onClick={() => setSelectedCategory("Bank Statement")}
+                      >
                         Bank Statement
                       </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -322,15 +335,12 @@ export default function DocumentsPage() {
               </CardHeader>
               <CardContent>
                 {error ? (
-                  <div className="text-center py-8 text-red-600">
-                    {error}
-                  </div>
+                  <div className="text-center py-8 text-red-600">{error}</div>
                 ) : filteredDocuments.length === 0 ? (
                   <div className="text-center py-8 text-muted-foreground">
-                    {searchQuery || selectedCategory !== "all" 
+                    {searchQuery || selectedCategory !== "all"
                       ? "No documents match your search criteria"
-                      : "No documents found. Upload your first document to get started."
-                    }
+                      : "No documents found. Upload your first document to get started."}
                   </div>
                 ) : (
                   <div className="rounded-md border">
@@ -381,7 +391,9 @@ export default function DocumentsPage() {
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  onClick={() => handleDownloadDocument(document)}
+                                  onClick={() =>
+                                    handleDownloadDocument(document)
+                                  }
                                 >
                                   <Download className="h-4 w-4" />
                                 </Button>

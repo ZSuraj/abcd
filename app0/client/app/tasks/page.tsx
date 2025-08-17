@@ -30,10 +30,11 @@ import {
   ArrowDown,
   Paperclip,
   CheckCircle,
+  EyeIcon,
+  Download,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-
-
+import { SERVER_URL } from "../page";
 
 const getStatusColor = (status: Task["status"]) => {
   switch (status) {
@@ -94,11 +95,27 @@ export default function Tasks() {
     );
   }
 
-  const handleViewDocument = (docKey: string) => {
-    // Option 1: If you have a signed URL endpoint
-    fetch(`/api/docs/view?key=${encodeURIComponent(docKey)}`)
-      .then((res) => res.json())
-      .then((data) => window.open(data.url, "_blank"));
+  const handleViewDocument = async (docKey: string) => {
+    const user = JSON.parse(localStorage.getItem("currentUser"));
+    const response = await fetch(`${SERVER_URL}/get-file`, {
+      method: "POST",
+      headers: {
+        Authorization: user.token,
+      },
+      body: JSON.stringify({ key: docKey }),
+    });
+
+    if (!response.ok) {
+      console.error("Failed to fetch file for viewing");
+      return;
+    }
+
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    window.open(url, "_blank");
+
+    // Optionally revoke the object URL after some delay
+    // setTimeout(() => window.URL.revokeObjectURL(url), 1000 * 60); // 1 min later
   };
 
   const handleDownloadDocument = async (docKey: string) => {
@@ -128,14 +145,10 @@ export default function Tasks() {
     window.URL.revokeObjectURL(url);
   };
 
-
-
   if (!currentUser) {
     // return <RoleSwitcher users={mockUsers} onSelectUser={loginAs} />;
     return router.push("/login");
   }
-
-
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
@@ -247,7 +260,11 @@ export default function Tasks() {
                             value={task.status}
                             onValueChange={(value) => {
                               // TODO: Implement task status update
-                              console.log("Update task status:", task.id, value);
+                              console.log(
+                                "Update task status:",
+                                task.id,
+                                value
+                              );
                             }}
                           >
                             <SelectTrigger className="w-32">
@@ -285,20 +302,30 @@ export default function Tasks() {
                                     <span className="truncate max-w-xs">
                                       {docKey.key}
                                     </span>
-                                    {/* <button
-                              onClick={() => handleViewDocument(docKey)}
-                              className="text-blue-600 hover:underline text-sm"
-                            >
-                              View
-                            </button> */}
-                                    <button
-                                      onClick={() =>
-                                        handleDownloadDocument(docKey)
-                                      }
-                                      className="text-blue-600 hover:underline text-sm"
-                                    >
-                                      Download
-                                    </button>
+                                    <div className="flex items-center justify-end">
+                                      <Button
+                                        variant="link"
+                                        size="sm"
+                                        onClick={() =>
+                                          handleViewDocument(docKey)
+                                        }
+                                        className="text-blue-600 hover:underline hover:text-blue-700 text-sm font-normal"
+                                      >
+                                        {/* <EyeIcon className="h-4 w-4 text-blue-600" /> */}
+                                        View
+                                      </Button>
+                                      <Button
+                                        variant="link"
+                                        size="sm"
+                                        onClick={() =>
+                                          handleDownloadDocument(docKey)
+                                        }
+                                        className="text-blue-600 hover:underline hover:text-blue-700 text-sm font-normal"
+                                      >
+                                        {/* <Download className="h-4 w-4 text-blue-600" /> */}
+                                        Download
+                                      </Button>
+                                    </div>
                                   </li>
                                 )
                               )}
@@ -402,7 +429,6 @@ export default function Tasks() {
                   ))}
               </div>
               {/* Task List */}
-
 
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
