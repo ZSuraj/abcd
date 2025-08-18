@@ -33,6 +33,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { isAuthenticated, logout } from "@/lib/auth";
+import { SERVER_URL } from "../page";
 
 type DocumentCategory = "Sales" | "Purchase" | "Expense" | "Bank Statement";
 
@@ -66,6 +67,7 @@ export default function DocumentsPage() {
       name: "Q4_Sales_Report_2024.pdf",
       category: "Sales",
       size: 2048576,
+      type: "pdf",
       uploadedAt: "2024-01-15T10:30:00Z",
       status: "processed",
     },
@@ -74,6 +76,7 @@ export default function DocumentsPage() {
       name: "Purchase_Invoice_001.docx",
       category: "Purchase",
       size: 512000,
+      type: "docx",
       uploadedAt: "2024-01-14T14:20:00Z",
       status: "processed",
     },
@@ -82,13 +85,15 @@ export default function DocumentsPage() {
       name: "Office_Expenses_Jan.jpg",
       category: "Expense",
       size: 1024000,
-      uploadedAt: "2024-01-13T09:15:00Z",
+      type: "jpg",
+      uploadedAt: "2024-01-13T09:15:00Z", 
       status: "processing",
     },
     {
       id: "4",
       name: "Bank_Statement_December.pdf",
       category: "Bank Statement",
+      type: "pdf",
       size: 1536000,
       uploadedAt: "2024-01-12T16:45:00Z",
       status: "processed",
@@ -97,6 +102,7 @@ export default function DocumentsPage() {
       id: "5",
       name: "Client_Contract_2024.pdf",
       category: "Sales",
+      type: "pdf",
       size: 3072000,
       uploadedAt: "2024-01-11T11:20:00Z",
       status: "failed",
@@ -118,15 +124,21 @@ export default function DocumentsPage() {
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       // Replace this with actual API call
-      // const token = localStorage.getItem("authToken");
-      // const response = await fetch(`${SERVER_URL}/documents`, {
-      //   headers: { Authorization: token }
-      // });
-      // const data = await response.json();
-      // setDocuments(data.documents);
+      const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+      const response = await fetch(`${SERVER_URL}/get-files`, {
+        method: "POST",
+        headers: {
+          Authorization: currentUser.token,
+          "X-Client-ID": currentUser.data.user.id,
+        },
+      });
+      const data = await response.json();
+      // console.log(data);
 
-      setDocuments(mockDocuments);
-      setFilteredDocuments(mockDocuments);
+      setDocuments(data.documents);
+
+      // setDocuments(mockDocuments);
+      // setFilteredDocuments(mockDocuments);
     } catch (err) {
       setError("Failed to load documents");
       console.error(err);
@@ -173,9 +185,9 @@ export default function DocumentsPage() {
 
   const getCategoryBadge = (category: DocumentCategory) => {
     const colors = {
-      Sales: "bg-blue-100 text-blue-800",
-      Purchase: "bg-green-100 text-green-800",
-      Expense: "bg-yellow-100 text-yellow-800",
+      sales: "bg-blue-100 text-blue-800",
+      purchase: "bg-green-100 text-green-800",
+      expense: "bg-yellow-100 text-yellow-800",
       "Bank Statement": "bg-purple-100 text-purple-800",
     };
 
@@ -351,7 +363,8 @@ export default function DocumentsPage() {
                           <TableHead>Category</TableHead>
                           <TableHead>Size</TableHead>
                           <TableHead>Uploaded</TableHead>
-                          <TableHead>Status</TableHead>
+                          {/* <TableHead>Status</TableHead> */}
+                          <TableHead>Type</TableHead>
                           <TableHead className="text-right">Actions</TableHead>
                         </TableRow>
                       </TableHeader>
@@ -361,7 +374,7 @@ export default function DocumentsPage() {
                             <TableCell className="font-medium">
                               <div className="flex items-center gap-2">
                                 <FileIcon className="h-4 w-4 text-blue-500" />
-                                {document.name}
+                                {document.key}
                               </div>
                             </TableCell>
                             <TableCell>
@@ -373,11 +386,14 @@ export default function DocumentsPage() {
                             <TableCell className="text-muted-foreground">
                               <div className="flex items-center gap-1">
                                 <Calendar className="h-3 w-3" />
-                                {formatDate(document.uploadedAt)}
+                                {formatDate(document.created_at)}
                               </div>
                             </TableCell>
-                            <TableCell>
+                            {/* <TableCell>
                               {getStatusBadge(document.status)}
+                            </TableCell> */}
+                            <TableCell>
+                              {document.type}
                             </TableCell>
                             <TableCell className="text-right">
                               <div className="flex items-center justify-end gap-2">
