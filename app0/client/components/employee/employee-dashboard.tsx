@@ -15,7 +15,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { AlertCircle, CalendarDays, Clock, UserIcon } from "lucide-react";
-import { formatISTTimeAgo, timeAgo } from "@/lib/utils";
+import { formatISTTimeAgo, timeAgo } from "@/utils";
 import { format } from "timeago.js";
 
 interface EmployeeDashboardProps {

@@ -1,5 +1,6 @@
-import { SERVER_URL } from "@/app/page";
 import { User } from "@/types";
+
+export const SERVER_URL = "http://localhost:8787";
 
 // Mock authentication - in a real app, this would connect to your auth provider
 let currentUser: User | null = null;
@@ -34,10 +35,10 @@ export const mockUsers: User[] = [
   },
 ];
 
-export const login = async (
+export async function login(
   email: string,
   password: string
-): Promise<User | null> => {
+): Promise<User | null> {
   console.log(1);
 
   // Mock authentication logic
@@ -57,14 +58,15 @@ export const login = async (
   currentUser = user;
   localStorage.setItem("currentUser", JSON.stringify(user));
   return user;
-};
+}
 
-export const logout = () => {
+export function logout() {
   currentUser = null;
   localStorage.removeItem("currentUser");
-};
+  window.location.href = "/login";
+}
 
-export const getCurrentUser = (): User | null => {
+export function getCurrentUser(): User | null {
   if (currentUser) return currentUser;
 
   if (typeof window !== "undefined") {
@@ -76,8 +78,8 @@ export const getCurrentUser = (): User | null => {
   }
 
   return null;
-};
+}
 
-export const isAuthenticated = (): boolean => {
+export function isAuthenticated(): boolean {
   return getCurrentUser() !== null;
-};
+}

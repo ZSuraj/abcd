@@ -1,47 +1,54 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { login } from '@/lib/auth';
-import { User } from '@/types';
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { login } from "@/lib/auth";
+import { User } from "@/types";
 
 interface LoginFormProps {
   onLogin: (user: User) => void;
 }
 
 export function LoginForm({ onLogin }: LoginFormProps) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setError('');
+    setError("");
 
     try {
       const user = await login(email, password);
       if (user) {
         onLogin(user);
       } else {
-        setError('Invalid email or password');
+        setError("Invalid email or password");
       }
     } catch (err) {
-      setError('An error occurred during login');
+      setError("An error occurred during login");
     } finally {
       setIsLoading(false);
     }
   };
 
   const demoCredentials = [
-    { role: 'Client', email: 'client@example.com', password: 'password' },
-    { role: 'Employee', email: 'employee@example.com', password: 'password' },
-    { role: 'Admin', email: 'admin@example.com', password: 'password' }
+    { role: "Client", email: "diana@example.com", password: "dpassword4" },
+    { role: "Employee", email: "alice@example.com", password: "password123" },
+    { role: "Admin", email: "bob@example.com", password: "admin456" },
   ];
 
   return (
@@ -60,7 +67,7 @@ export function LoginForm({ onLogin }: LoginFormProps) {
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
-            
+
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -72,7 +79,7 @@ export function LoginForm({ onLogin }: LoginFormProps) {
                 disabled={isLoading}
               />
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
               <Input
@@ -91,21 +98,20 @@ export function LoginForm({ onLogin }: LoginFormProps) {
                 {demoCredentials.map((cred) => (
                   <div key={cred.role} className="flex justify-between">
                     <span className="font-medium">{cred.role}:</span>
-                    <span className="text-gray-600">{cred.email}</span>
+                    <div className="w-3/4 flex">
+                      <span className="text-gray-600 w-1/2">{cred.email}</span>
+                      <span className="text-gray-600 w-1/2">{cred.password}</span>
+                    </div>
                   </div>
                 ))}
-                <div className="text-gray-500 mt-1">Password: password</div>
+                {/* <div className="text-gray-500 mt-1">Password: password</div> */}
               </div>
             </div>
           </CardContent>
-          
+
           <CardFooter>
-            <Button 
-              type="submit" 
-              className="w-full" 
-              disabled={isLoading}
-            >
-              {isLoading ? 'Logging In...' : 'Log In'}
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? "Logging In..." : "Log In"}
             </Button>
           </CardFooter>
         </form>

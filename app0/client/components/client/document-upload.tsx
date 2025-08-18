@@ -31,6 +31,7 @@ import { Badge } from "../ui/badge";
 import { handleUploadDocuments } from "@/lib/data";
 import { Client } from "@/types";
 import { useRouter } from "next/navigation";
+import { getCurrentUser } from "@/lib/auth";
 
 interface DocumentUploadProps {
   onUploadDocuments: (files: File[]) => void;
@@ -57,6 +58,7 @@ export function DocumentUpload({
   userId: string;
   selectedClient: number;
 }) {
+  const user = getCurrentUser();
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
@@ -288,16 +290,18 @@ export function DocumentUpload({
                 selectedFiles.length !== 1 ? "s" : ""
               }`}
         </Button>
-        <div className="w-full flex items-center justify-center">
-          <Button
-            variant="link"
-            onClick={() => router.push("/documents")}
-            className="flex justify-center"
-          >
-            <FileIcon className="h-4 w-4 mr-2" />
-            View Documents
-          </Button>
-        </div>
+        {user?.data.user.type === "client" && (
+          <div className="w-full flex items-center justify-center">
+            <Button
+              variant="link"
+              onClick={() => router.push("/documents")}
+              className="flex justify-center"
+            >
+              <FileIcon className="h-4 w-4 mr-2" />
+              View Documents
+            </Button>
+          </div>
+        )}
       </CardContent>
 
       {/* category dialog */}

@@ -17,13 +17,15 @@ import {
   Download,
   Calendar,
   Paperclip,
+  Eye,
 } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 import { useEffect, useState } from "react";
 import { SERVER_URL } from "@/app/page";
+import { handleDownloadDocument, handleViewDocument } from "@/lib/utils";
 
 interface ClientDocumentsProps {
-  client: number;
+  client: Client;
   documents: Document[];
   onBack: () => void;
 }
@@ -33,30 +35,19 @@ export function ClientDocuments({
   documents,
   onBack,
 }: ClientDocumentsProps) {
+  console.log("ccc");
+  console.log("ccc");
+  console.log("ccc");
+  console.log("ccc");
+  console.log(client);
+  console.log(documents);
+
   const clientDocuments = documents
-    .filter((doc) => doc.clientId === client.id)
+    .filter((doc) => doc.client_id === client.id)
     .sort(
       (a, b) =>
-        new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime()
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
     );
-
-  const [cdocuments, setCDocuments] = useState([]);
-
-  useEffect(() => {
-    async function getDocs() {
-      const res = await fetch(`${SERVER_URL}/get-files`, {
-        method: "POST",
-        headers: {
-          "X-Client-ID": client.id.toString(),
-        },
-      });
-      const data = await res.json();
-      console.log(data);
-      setCDocuments(data.keys);
-    }
-
-    getDocs();
-  }, []);
 
   const getFileIcon = (type: string) => {
     if (type.startsWith("image/")) {
@@ -104,7 +95,7 @@ export function ClientDocuments({
               <div>
                 <p className="text-sm text-gray-600">Total Documents</p>
                 <p className="text-xl font-bold text-blue-600">
-                  {cdocuments.length}
+                  {documents.length}
                 </p>
               </div>
             </div>
@@ -120,7 +111,7 @@ export function ClientDocuments({
                 <p className="text-xl font-bold text-green-600">
                   {clientDocuments.length > 0
                     ? formatDistanceToNow(
-                        new Date(clientDocuments[0].uploadedAt),
+                        new Date(clientDocuments[0].created_at),
                         { addSuffix: true }
                       )
                     : "None"}
@@ -139,7 +130,9 @@ export function ClientDocuments({
                 <p className="text-xl font-bold text-purple-600">
                   {
                     new Set(
-                      cdocuments.map((f) => f.split(".").pop().toLowerCase())
+                      documents.map((f) =>
+                        f.type.split(".").pop().toLowerCase()
+                      )
                     ).size
                   }
                 </p>
@@ -159,14 +152,14 @@ export function ClientDocuments({
         </CardHeader>
 
         <CardContent>
-          {cdocuments.length === 0 ? (
+          {documents.length === 0 ? (
             <div className="text-center py-8 text-gray-500">
               <FileText className="h-8 w-8 mx-auto mb-2 opacity-50" />
               <p>No documents uploaded yet</p>
             </div>
           ) : (
             <div className="space-y-3">
-              {cdocuments.map((document, index) => (
+              {documents.map((document, index) => (
                 <div
                   key={index}
                   className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors"
@@ -175,7 +168,7 @@ export function ClientDocuments({
                     {/* {getFileIcon(document.type)} */}
                     <Paperclip className="h-5 w-5 text-blue-600" />
                     <div>
-                      <p className="font-medium">{document}</p>
+                      <p className="font-medium">{document.key}</p>
                       {/* <div className="flex items-center gap-3 text-sm text-gray-500">
                         <span>{formatFileSize(document.size)}</span>
                         <span>•</span>
@@ -206,7 +199,15 @@ export function ClientDocuments({
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handleDownload(document)}
+                      onClick={() => handleViewDocument(document.key)}
+                    >
+                      <Eye className="h-4 w-4 mr-1" />
+                      View
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleDownloadDocument(document.key)}
                     >
                       <Download className="h-4 w-4 mr-1" />
                       Download

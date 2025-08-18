@@ -35,6 +35,8 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { SERVER_URL } from "../page";
+import { fetchDocument } from "@/lib/api";
+import { toast } from "sonner";
 
 const getStatusColor = (status: Task["status"]) => {
   switch (status) {
@@ -95,50 +97,31 @@ export default function Tasks() {
     );
   }
 
-  const handleViewDocument = async (docKey: string) => {
-    const user = JSON.parse(localStorage.getItem("currentUser"));
-    const response = await fetch(`${SERVER_URL}/get-file`, {
-      method: "POST",
-      headers: {
-        Authorization: user.token,
-      },
-      body: JSON.stringify({ key: docKey }),
-    });
-
-    if (!response.ok) {
+  const handleViewDocument = async (key: string) => {
+    const res = (await fetchDocument(key)) as Response;
+    if (!res.ok) {
       console.error("Failed to fetch file for viewing");
+      toast.error("Failed to fetch file for viewing");
       return;
     }
-
-    const blob = await response.blob();
+    const blob = await res.blob();
     const url = window.URL.createObjectURL(blob);
     window.open(url, "_blank");
-
-    // Optionally revoke the object URL after some delay
-    // setTimeout(() => window.URL.revokeObjectURL(url), 1000 * 60); // 1 min later
   };
 
-  const handleDownloadDocument = async (docKey: string) => {
-    const user = JSON.parse(localStorage.getItem("currentUser"));
-    const response = await fetch(`${SERVER_URL}/get-file`, {
-      method: "POST",
-      headers: {
-        // "Content-Type": "application/json",
-        Authorization: user.token,
-      },
-      body: JSON.stringify({ key: docKey }),
-    });
-
-    if (!response.ok) {
-      console.error("Failed to download file");
+  const handleDownloadDocument = async (key: string) => {
+    const res = (await fetchDocument(key)) as Response;
+    if (!res.ok) {
+      console.error("Failed to fetch file for downloading");
+      toast.error("Failed to fetch file for downloading");
       return;
     }
 
-    const blob = await response.blob();
+    const blob = await res.blob();
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = docKey.key.split("/").pop() || "download";
+    link.download = key.split("/").pop() || "download";
     document.body.appendChild(link);
     link.click();
     link.remove();

@@ -39,11 +39,12 @@ import { Navbar } from "@/components/layout/navbar";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { useAppState } from "@/hooks/use-app-state";
+import { fetchClients, fetchDocuments } from "@/lib/api";
+import { Client } from "@/types";
 
 export default function Clients() {
-
-  const {reassignClient} = useAppState()
-  const [selectedClient, setSelectedClient] = useState<number | null>(null);
+  const { reassignClient } = useAppState();
+  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const router = useRouter();
 
   const currentUser = JSON.parse(localStorage.getItem("currentUser"));
@@ -55,18 +56,16 @@ export default function Clients() {
   const [viewingClientId, setViewingClientId] = useState<string | null>(null);
   const [allEmployees, setAllEmployees] = useState<User[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
+  const [allClients, setAllClients] = useState<Client[]>([]);
 
   async function getDocs(clientId: number) {
-    const res = await fetch(`${SERVER_URL}/get-files`, {
-      method: "POST",
-      headers: {
-        "X-Client-ID": clientId.toString(),
-      },
-    });
+    const res = await fetchDocuments(clientId);
     const data = await res.json();
     console.log(data);
-    setCDocuments(data.keys);
-    localStorage.setItem("clientDocuments", JSON.stringify(data.keys));
+    setCDocuments(data.documents);
+    if (data !== undefined) {
+      // localStorage.setItem("clientDocuments", JSON.stringify(data.keys));
+    }
   }
 
   useEffect(() => {
@@ -78,36 +77,21 @@ export default function Clients() {
     // }
   }, []);
 
-  if (selectedClient) {
-    return (
-      <div className="max-w-6xl mx-auto p-6">
-        <ClientDocuments
-          client={selectedClient}
-          documents={cdocuments}
-          onBack={() => setSelectedClient(null)}
-        />
-      </div>
-    );
-  }
+  console.log(clients);
 
-//   if (clients.length === 0) {
-//     return (
-//       <div className="text-center py-12">
-//         <UserIcon className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-//         <h3 className="text-lg font-medium text-gray-900 mb-2">
-//           No clients assigned
-//         </h3>
-//         <p className="text-gray-600">
-//           You don't have any clients assigned yet.
-//         </p>
-//       </div>
-//     );
-//   }
-
-  if (!currentUser) {
-    // return <RoleSwitcher users={mockUsers} onSelectUser={loginAs} />;
-    return router.push("/login");
-  }
+  //   if (clients.length === 0) {
+  //     return (
+  //       <div className="text-center py-12">
+  //         <UserIcon className="h-12 w-12 mx-auto text-gray-400 mb-4" />
+  //         <h3 className="text-lg font-medium text-gray-900 mb-2">
+  //           No clients assigned
+  //         </h3>
+  //         <p className="text-gray-600">
+  //           You don't have any clients assigned yet.
+  //         </p>
+  //       </div>
+  //     );
+  //   }
 
   const filteredClients = clients.filter(
     (client) => client.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -138,8 +122,6 @@ export default function Clients() {
   };
 
   const fetchAllClients = async () => {
-    console.log("fetchAllClients");
-
     const user = JSON.parse(localStorage.getItem("currentUser"));
     if (user) {
       const res = await fetch(`${SERVER_URL}/get-all-clients`, {
@@ -149,14 +131,20 @@ export default function Clients() {
         },
       });
       const data = await res.json();
-      setClients(data.data);
-      console.log(data.data);
+      setAllClients(data.data);
     }
   };
 
   useEffect(() => {
-    fetchAllEmployees();
-    fetchAllClients();
+    async function initialize() {
+      fetchAllEmployees();
+      fetchAllClients();
+      const res = await fetchClients();
+      const data = await res.json();
+      setClients(data.data);
+    }
+
+    initialize();
   }, []);
 
   const handleReassign = async (
@@ -166,7 +154,6 @@ export default function Clients() {
   ) => {
     setReassigning(clientId);
 
-    console.log(oldEmployeeId, clientId);
     const user = JSON.parse(localStorage.getItem("currentUser"));
 
     const res = await fetch(`${SERVER_URL}/reassign-employee`, {
@@ -182,12 +169,28 @@ export default function Clients() {
       }),
     });
     const data = await res.json();
-    console.log(data);
 
     reassignClient(clientId, newEmployeeId);
     setReassigning(null);
     fetchAllClients();
   };
+
+  if (!currentUser) {
+    // return <RoleSwitcher users={mockUsers} onSelectUser={loginAs} />;
+    return router.push("/login");
+  }
+
+  if (selectedClient) {
+    return (
+      <div className="max-w-6xl mx-auto p-6">
+        <ClientDocuments
+          client={selectedClient}
+          documents={cdocuments}
+          onBack={() => setSelectedClient(null)}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
@@ -231,7 +234,7 @@ export default function Clients() {
                         <div className="flex items-center justify-between pt-2">
                           <div className="flex items-center gap-1 text-sm">
                             <FileText className="h-4 w-4 text-gray-500" />
-                            <span>{cdocuments.length} documents</span>
+                            <span>{client.no_of_docs} documents</span>
                           </div>
 
                           <Badge
@@ -248,7 +251,7 @@ export default function Clients() {
                           size="sm"
                           onClick={() => {
                             getDocs(client.id);
-                            setSelectedClient(client.id);
+                            setSelectedClient(client);
                           }}
                         >
                           View Documents

@@ -1,54 +1,33 @@
-import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
-import { format } from "timeago.js";
+import { toast } from "sonner";
+import { fetchDocument } from "./api";
 
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
+export const handleViewDocument = async (key: string) => {
+  const res = (await fetchDocument(key)) as Response;
+  if (!res.ok) {
+    console.error("Failed to fetch file for viewing");
+    toast.error("Failed to fetch file for viewing");
+    return;
+  }
+  const blob = await res.blob();
+  const url = window.URL.createObjectURL(blob);
+  window.open(url, "_blank");
+};
 
-export function timeAgo(timestamp) {
-  const utcDate = new Date(timestamp.replace(" ", "T") + "Z"); // Adds the Z for UTC
-  const now = new Date(); // Local time (IST in your case)
-
-  const seconds = Math.floor((now - utcDate) / 1000);
-
-  const intervals = {
-    year: 31536000,
-    month: 2592000,
-    week: 604800,
-    day: 86400,
-    hour: 3600,
-    minute: 60,
-    second: 1,
-  };
-
-  for (const [unit, value] of Object.entries(intervals)) {
-    const count = Math.floor(seconds / value);
-    if (count > 0) {
-      if (unit === "day" && count === 1) return "yesterday";
-      return count === 1 ? `1 ${unit} ago` : `${count} ${unit}s ago`;
-    }
+export const handleDownloadDocument = async (key: string) => {
+  const res = (await fetchDocument(key)) as Response;
+  if (!res.ok) {
+    console.error("Failed to fetch file for downloading");
+    toast.error("Failed to fetch file for downloading");
+    return;
   }
 
-  return "just now";
-}
-
-export function formatISTTimeAgo(date) {
-  const inputDate = new Date(date);
-
-  // Convert UTC date to IST by adding +5:30 offset
-  const ISTOffset = 5.5 * 60 * 60 * 1000; // 5 hours 30 minutes in ms
-  const istDate = new Date(inputDate.getTime() + ISTOffset);
-
-  return format(istDate);
-}
-
-export function formatFileSize(bytes: number): string {
-  if (bytes === 0) return '0 Bytes';
-  
-  const k = 1024;
-  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-}
+  const blob = await res.blob();
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = key.split("/").pop() || "download";
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.URL.revokeObjectURL(url);
+};
