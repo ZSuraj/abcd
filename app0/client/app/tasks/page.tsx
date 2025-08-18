@@ -19,7 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { timeAgo } from "@/lib/utils";
+import { timeAgo } from "@/utils";
 import {
   CalendarDays,
   Clock,
@@ -37,6 +37,7 @@ import { useRouter } from "next/navigation";
 import { SERVER_URL } from "../page";
 import { fetchDocument } from "@/lib/api";
 import { toast } from "sonner";
+import { Task } from "@/types";
 
 const getStatusColor = (status: Task["status"]) => {
   switch (status) {
