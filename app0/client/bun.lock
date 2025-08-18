@@ -47,7 +47,7 @@
         "input-otp": "^1.2.4",
         "lucide-react": "^0.539.0",
         "next": "13.5.1",
-        "next-themes": "^0.3.0",
+        "next-themes": "^0.4.6",
         "postcss": "8.4.30",
         "react": "18.2.0",
         "react-day-picker": "^8.10.1",
@@ -55,7 +55,7 @@
         "react-hook-form": "^7.53.0",
         "react-resizable-panels": "^2.1.3",
         "recharts": "^2.12.7",
-        "sonner": "^1.5.0",
+        "sonner": "^2.0.7",
         "tailwind-merge": "^2.5.2",
         "tailwindcss": "3.3.3",
         "tailwindcss-animate": "^1.0.7",
@@ -741,7 +741,7 @@
 
     "next": ["next@13.5.1", "", { "dependencies": { "@next/env": "13.5.1", "@swc/helpers": "0.5.2", "busboy": "1.6.0", "caniuse-lite": "^1.0.30001406", "postcss": "8.4.14", "styled-jsx": "5.1.1", "watchpack": "2.4.0", "zod": "3.21.4" }, "optionalDependencies": { "@next/swc-darwin-arm64": "13.5.1", "@next/swc-darwin-x64": "13.5.1", "@next/swc-linux-arm64-gnu": "13.5.1", "@next/swc-linux-arm64-musl": "13.5.1", "@next/swc-linux-x64-gnu": "13.5.1", "@next/swc-linux-x64-musl": "13.5.1", "@next/swc-win32-arm64-msvc": "13.5.1", "@next/swc-win32-ia32-msvc": "13.5.1", "@next/swc-win32-x64-msvc": "13.5.1" }, "peerDependencies": { "@opentelemetry/api": "^1.1.0", "react": "^18.2.0", "react-dom": "^18.2.0", "sass": "^1.3.0" }, "optionalPeers": ["@opentelemetry/api", "sass"], "bin": "dist/bin/next" }, "sha512-GIudNR7ggGUZoIL79mSZcxbXK9f5pwAIPZxEM8+j2yLqv5RODg4TkmUlaKSYVqE1bPQueamXSqdC3j7axiTSEg=="],
 
-    "next-themes": ["next-themes@0.3.0", "", { "peerDependencies": { "react": "^16.8 || ^17 || ^18", "react-dom": "^16.8 || ^17 || ^18" } }, "sha512-/QHIrsYpd6Kfk7xakK4svpDI5mmXP0gfvCoJdGpZQ2TOrQZmsW0QxjaiLn8wbIKjtm4BTSqLoix4lxYYOnLJ/w=="],
+    "next-themes": ["next-themes@0.4.6", "", { "peerDependencies": { "react": "^16.8 || ^17 || ^18 || ^19 || ^19.0.0-rc", "react-dom": "^16.8 || ^17 || ^18 || ^19 || ^19.0.0-rc" } }, "sha512-pZvgD5L0IEvX5/9GWyHMf3m8BKiVQwsCMHfoFosXtXBMnaS0ZnIJ9ST4b4NqLVKDEm8QBxoNNGNaBv2JNF6XNA=="],
 
     "node-releases": ["node-releases@2.0.18", "", {}, "sha512-d9VeXT4SJ7ZeOqGX6R5EM022wpL+eWPooLI+5UpWn2jCT1aosUQEhQP214x33Wkwx3JQMvIm+tIoVOdodFS40g=="],
 
@@ -895,7 +895,7 @@
 
     "slash": ["slash@3.0.0", "", {}, "sha512-g9Q1haeby36OSStwb4ntCGGGaKsaVSjQ68fBxoQcutl5fS1vuY18H3wSt3jFyFtrkx+Kz0V1G85A4MyAdDMi2Q=="],
 
-    "sonner": ["sonner@1.5.0", "", { "peerDependencies": { "react": "^18.0.0", "react-dom": "^18.0.0" } }, "sha512-FBjhG/gnnbN6FY0jaNnqZOMmB73R+5IiyYAw8yBj7L54ER7HB3fOSE5OFiQiE2iXWxeXKvg6fIP4LtVppHEdJA=="],
+    "sonner": ["sonner@2.0.7", "", { "peerDependencies": { "react": "^18.0.0 || ^19.0.0 || ^19.0.0-rc", "react-dom": "^18.0.0 || ^19.0.0 || ^19.0.0-rc" } }, "sha512-W6ZN4p58k8aDKA4XPcx2hpIQXBRAgyiWVkYhT7CvK6D3iAu7xjvVyhQHg2/iaKJZ1XVJ4r7XuwGL+WGEK37i9w=="],
 
     "source-map-js": ["source-map-js@1.2.1", "", {}, "sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA=="],
 

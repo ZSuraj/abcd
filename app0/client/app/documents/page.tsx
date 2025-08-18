@@ -34,6 +34,8 @@ import {
 import { useRouter } from "next/navigation";
 import { isAuthenticated, logout } from "@/lib/auth";
 import { SERVER_URL } from "../page";
+import { fetchDocument } from "@/lib/api";
+import { toast } from "sonner";
 
 type DocumentCategory = "Sales" | "Purchase" | "Expense" | "Bank Statement";
 
@@ -86,7 +88,7 @@ export default function DocumentsPage() {
       category: "Expense",
       size: 1024000,
       type: "jpg",
-      uploadedAt: "2024-01-13T09:15:00Z", 
+      uploadedAt: "2024-01-13T09:15:00Z",
       status: "processing",
     },
     {
@@ -216,14 +218,35 @@ export default function DocumentsPage() {
     });
   };
 
-  const handleViewDocument = (document: Document) => {
-    // Implement document viewing logic
-    console.log("Viewing document:", document);
+  const handleViewDocument = async (key: string) => {
+    const res = (await fetchDocument(key)) as Response;
+    if (!res.ok) {
+      console.error("Failed to fetch file for viewing");
+      toast.error("Failed to fetch file for viewing");
+      return;
+    }
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+    window.open(url, "_blank");
   };
 
-  const handleDownloadDocument = (document: Document) => {
-    // Implement document download logic
-    console.log("Downloading document:", document);
+  const handleDownloadDocument = async (key: string) => {
+    const res = (await fetchDocument(key)) as Response;
+    if (!res.ok) {
+      console.error("Failed to fetch file for downloading");
+      toast.error("Failed to fetch file for downloading");
+      return;
+    }
+
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = key.split("/").pop() || "download";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
   };
 
   const handleDeleteDocument = (document: Document) => {
@@ -392,15 +415,15 @@ export default function DocumentsPage() {
                             {/* <TableCell>
                               {getStatusBadge(document.status)}
                             </TableCell> */}
-                            <TableCell>
-                              {document.type}
-                            </TableCell>
+                            <TableCell>{document.type}</TableCell>
                             <TableCell className="text-right">
                               <div className="flex items-center justify-end gap-2">
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  onClick={() => handleViewDocument(document)}
+                                  onClick={() =>
+                                    handleViewDocument(document.key)
+                                  }
                                 >
                                   <Eye className="h-4 w-4" />
                                 </Button>
