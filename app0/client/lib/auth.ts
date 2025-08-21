@@ -5,36 +5,6 @@ export const SERVER_URL = "http://localhost:8787";
 // Mock authentication - in a real app, this would connect to your auth provider
 let currentUser: User | null = null;
 
-export const mockUsers: User[] = [
-  {
-    id: "1",
-    email: "client@example.com",
-    name: "John Client",
-    type: "client",
-    assignedEmployeeId: "2",
-  },
-  {
-    id: "2",
-    email: "employee@example.com",
-    name: "Jane Employee",
-    type: "employee",
-    managedClientIds: ["1", "3"],
-  },
-  {
-    id: "3",
-    email: "client2@example.com",
-    name: "Bob Client",
-    type: "client",
-    assignedEmployeeId: "2",
-  },
-  {
-    id: "4",
-    email: "admin@example.com",
-    name: "Admin User",
-    type: "admin",
-  },
-];
-
 export async function login(
   email: string,
   password: string
@@ -52,10 +22,8 @@ export async function login(
     body: formData,
   });
 
-  const user = await response.json();
+  const user = (await response.json()) as User;
 
-  // const user = mockUsers.find((u) => u.email === email);
-  currentUser = user;
   localStorage.setItem("currentUser", JSON.stringify(user));
   return user;
 }
@@ -63,7 +31,7 @@ export async function login(
 export function logout() {
   currentUser = null;
   localStorage.removeItem("currentUser");
-  window.location.href = "/login";
+  // window.location.href = "/login";
 }
 
 export function getCurrentUser(): User | null {

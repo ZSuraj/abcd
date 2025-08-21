@@ -1,3 +1,6 @@
+"use client";
+
+import { Task } from "@/types";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { format } from "timeago.js";
@@ -6,11 +9,11 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function timeAgo(timestamp) {
+export function timeAgo(timestamp: string) {
   const utcDate = new Date(timestamp.replace(" ", "T") + "Z"); // Adds the Z for UTC
   const now = new Date(); // Local time (IST in your case)
 
-  const seconds = Math.floor((now - utcDate) / 1000);
+  const seconds = Math.floor((now.getTime() - utcDate.getTime()) / 1000);
 
   const intervals = {
     year: 31536000,
@@ -33,7 +36,7 @@ export function timeAgo(timestamp) {
   return "just now";
 }
 
-export function formatISTTimeAgo(date) {
+export function formatISTTimeAgo(date: string) {
   const inputDate = new Date(date);
 
   // Convert UTC date to IST by adding +5:30 offset
@@ -51,4 +54,19 @@ export function formatFileSize(bytes: number): string {
   const i = Math.floor(Math.log(bytes) / Math.log(k));
 
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+}
+
+export function getStatusColor(status: Task["status"]) {
+  switch (status) {
+    case "pending":
+      return "bg-gray-100 text-gray-800";
+    case "in-progress":
+      return "bg-blue-100 text-blue-800";
+    case "in-review":
+      return "bg-orange-100 text-orange-800";
+    case "completed":
+      return "bg-green-100 text-green-800";
+    default:
+      return "bg-gray-100 text-gray-800";
+  }
 }

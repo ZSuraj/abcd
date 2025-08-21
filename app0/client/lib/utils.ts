@@ -1,5 +1,11 @@
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
 import { toast } from "sonner";
 import { fetchDocument } from "./api";
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
 
 export const handleViewDocument = async (key: string) => {
   const res = (await fetchDocument(key)) as Response;

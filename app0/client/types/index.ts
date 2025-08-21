@@ -3,16 +3,10 @@ export type UserRole = "client" | "employee" | "admin";
 export type TaskStatus = "pending" | "in-progress" | "in-review" | "completed";
 
 export interface User {
-  id: string;
   token: string;
-  email: string;
-  name: string;
-  type: UserRole;
-  assignedEmployeeId?: string; // For clients - which employee they're assigned to
-  managedClientIds?: string[]; // For employees - which clients they manage
   data: {
     user: {
-      id: number;
+      id: string;
       email: string;
       name: string;
       type: UserRole;
@@ -25,19 +19,25 @@ export interface Client {
   name: string;
   email: string;
   assignedEmployeeId: string;
-  documentsCount: number;
-  tasksCount: number;
+  no_of_docs: number;
+  no_of_tasks: number;
+  employee: {
+    id: string;
+  };
 }
 
 export interface Document {
   id: string;
   name: string;
+  category: string;
   type: string;
   size: number;
-  uploadedAt: Date;
+  created_at: string;
   clientId: string;
   employeeId: string;
+  status: string;
   url: string;
+  key: string;
 }
 
 export interface Task {
@@ -45,12 +45,13 @@ export interface Task {
   title: string;
   description: string;
   status: TaskStatus;
-  clientId: string;
-  employeeId: string;
-  createdAt: Date;
-  updatedAt: Date;
-  dueDate?: Date;
+  created_at: string;
+  updated_at: string;
+  due_date: string;
   priority: "low" | "medium" | "high";
+  category: string;
+  client_name: string;
+  docslist: string;
 }
 
 export interface Notification {
@@ -60,4 +61,11 @@ export interface Notification {
   isRead: boolean;
   createdAt: Date;
   userId: string;
+}
+
+export interface Employee {
+  id: string;
+  name: string;
+  email: string;
+  assignedClientIds: string[];
 }

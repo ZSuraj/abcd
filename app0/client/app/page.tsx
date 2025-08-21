@@ -1,94 +1,35 @@
 "use client";
 
-import { useAppState } from "@/hooks/use-app-state";
-import { RoleSwitcher } from "@/components/role-switcher";
-import { Navbar } from "@/components/layout/navbar";
-import { ClientDashboard } from "@/components/client/client-dashboard";
-import { EmployeeDashboard } from "@/components/employee/employee-dashboard";
-import { AdminDashboard } from "@/components/admin/admin-dashboard";
+import { Navbar } from "@/components/layout/Navbar";
+import { EmployeeDashboard } from "@/components/employee/EmployeeDashboard";
 import { useRouter } from "next/navigation";
-import { AppSidebar } from "@/components/layout/app-sidebar";
-
-export const SERVER_URL = "http://localhost:8787";
+import { AppSidebar } from "@/components/layout/AppSidebar";
+import { useEffect, useState } from "react";
+import { getCurrentUser, isAuthenticated } from "@/lib/auth";
+import { User } from "@/types";
 
 export default function Home() {
-  const {
-    currentUser,
-    clients,
-    documents,
-    tasks,
-    notifications,
-    mockUsers,
-    isInitialized,
-    loginAs,
-    logout,
-    addDocument,
-    updateTaskStatus,
-    reassignClient,
-    markAllNotificationsRead,
-    getUnreadNotifications,
-  } = useAppState();
-
-  const employees = JSON.parse(localStorage.getItem("allEmployees") || "[]");
-  const unreadNotifications = currentUser
-    ? getUnreadNotifications(currentUser.id)
-    : [];
   const router = useRouter();
+  const [user, setUser] = useState<User | null>();
 
-  const handleUploadDocuments = (files: File[]) => {
-    if (currentUser?.id) {
-      files.forEach((file) => {
-        addDocument(file, currentUser.id);
-      });
+  useEffect(() => {
+    if (!isAuthenticated()) {
+      // return <RoleSwitcher users={mockUsers} onSelectUser={loginAs} />;
+      return router.push("/login");
     }
-  };
-
-  if (!isInitialized) {
-    return <div>Loading app state...</div>;
-  }
-
-  if (!currentUser) {
-    // return <RoleSwitcher users={mockUsers} onSelectUser={loginAs} />;
-    return router.push("/login");
-  }
+    const user = getCurrentUser();
+    setUser(user);
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
-      {currentUser.data.user.type !== "client" && <AppSidebar />}
-      <main className="w-full">
-        <Navbar user={currentUser.data.user} />
+      {user?.data.user.type !== "client" && <AppSidebar />}
+      <div className="w-full">
+        <Navbar />
         <div className="p-6">
-          {currentUser?.data.user.type === "client" && (
-            <ClientDashboard
-              user={currentUser.data.user}
-              documents={documents}
-              onUploadDocuments={handleUploadDocuments}
-            />
-          )}
-
-          {currentUser?.data.user.type === "employee" && (
-            <EmployeeDashboard
-              user={currentUser.data.user}
-              tasks={tasks}
-              clients={clients}
-              documents={documents}
-              onUpdateTaskStatus={updateTaskStatus}
-            />
-          )}
-
-          {currentUser?.data.user.type === "admin" && (
-            <AdminDashboard
-              user={currentUser?.data.user}
-              tasks={tasks}
-              clients={clients}
-              documents={documents}
-              employees={employees}
-              onUpdateTaskStatus={updateTaskStatus}
-              onReassignClient={reassignClient}
-            />
-          )}
+          {user?.data.user.type === "employee" && <EmployeeDashboard />}
         </div>
-      </main>
+      </div>
     </div>
   );
 }
