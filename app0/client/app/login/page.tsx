@@ -90,27 +90,15 @@ export default function Login() {
               />
             </div>
 
-            <div className="bg-gray-50 p-3 rounded-lg">
-              <h4 className="text-sm font-medium mb-2">Demo Credentials:</h4>
-              <div className="space-y-1 text-xs">
-                {demoCredentials.map((cred) => (
-                  <div key={cred.role} className="flex justify-between">
-                    <span className="font-medium">{cred.role}:</span>
-                    <div className="w-3/4 flex">
-                      <span className="text-gray-600 w-1/2">{cred.email}</span>
-                      <span className="text-gray-600 w-1/2">
-                        {cred.password}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-                {/* <div className="text-gray-500 mt-1">Password: password</div> */}
-              </div>
-            </div>
+            <div className="p-1"></div>
           </CardContent>
 
           <CardFooter>
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button
+              type="submit"
+              className="w-full cursor-pointer"
+              disabled={isLoading}
+            >
               {isLoading ? "Logging In..." : "Log In"}
             </Button>
           </CardFooter>
