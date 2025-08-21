@@ -4,7 +4,7 @@
  */
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "my-next-app",
+	"name": "abcd-app0",
 	"compatibility_date": "2025-08-19",
 	"compatibility_flags": [
 		"nodejs_compat"
@@ -12,6 +12,9 @@
 	"pages_build_output_dir": ".vercel/output/static",
 	"observability": {
 		"enabled": true
+	},
+	"build": {
+		"command": "bun install && bun run build",
 	}
 	/**
 	 * Smart Placement
