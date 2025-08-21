@@ -1,6 +1,6 @@
 import { User } from "@/types";
 
-export const SERVER_URL = "http://localhost:8787";
+export const SERVER_URL = process.env.NEXT_PUBLIC_SERVER_URL;
 
 // Mock authentication - in a real app, this would connect to your auth provider
 let currentUser: User | null = null;
