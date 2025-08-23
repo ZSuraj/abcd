@@ -177,7 +177,7 @@ export function EmployeeDashboard() {
               .map((task) => (
                 <div
                   key={task?.id}
-                  className="flex items-center justify-between rounded-md border p-4 shadow-sm hover:shadow-md transition-all bg-white"
+                  className="flex items-center justify-between rounded-md border p-4 shadow-sm transition-all bg-white"
                 >
                   <div className="flex flex-col">
                     <span className="font-medium text-gray-900">

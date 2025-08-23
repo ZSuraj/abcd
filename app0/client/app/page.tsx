@@ -7,6 +7,7 @@ import { AppSidebar } from "@/components/layout/AppSidebar";
 import { useEffect, useState } from "react";
 import { getCurrentUser, isAuthenticated } from "@/lib/auth";
 import { User } from "@/types";
+import ClientDashboard from "@/components/client/ClientDashboard";
 
 export default function Home() {
   const router = useRouter();
@@ -28,6 +29,7 @@ export default function Home() {
         <Navbar />
         <div className="p-6">
           {user?.data.user.type === "employee" && <EmployeeDashboard />}
+          {user?.data.user.type === "client" && <ClientDashboard user={user}/>}
         </div>
       </div>
     </div>

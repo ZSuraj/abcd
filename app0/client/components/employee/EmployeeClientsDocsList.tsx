@@ -5,6 +5,7 @@ import {
   Eye,
   FileText,
   Image,
+  Loader2,
   Paperclip,
 } from "lucide-react";
 import { Button } from "../ui/button";
@@ -18,6 +19,7 @@ import {
 } from "../ui/card";
 import { handleDownloadDocument, handleViewDocument } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
+import { useState } from "react";
 
 export default function EmployeeClientsDocsList({
   client,
@@ -28,6 +30,8 @@ export default function EmployeeClientsDocsList({
   clientDocs: Document[];
   onBack: () => void;
 }) {
+  const [loading, setLoading] = useState(""); // 'view', 'download', or null
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -157,17 +161,43 @@ export default function EmployeeClientsDocsList({
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handleViewDocument(document.key)}
+                      onClick={async () => {
+                        setLoading("view");
+
+                        try {
+                          await handleViewDocument(document.key);
+                        } finally {
+                          setLoading("");
+                        }
+                      }}
+                      disabled={loading === "view" || loading === "download"}
                     >
-                      <Eye className="h-4 w-4 mr-1" />
+                      {loading === "view" ? (
+                        <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                      ) : (
+                        <Eye className="h-4 w-4 mr-1" />
+                      )}
                       View
                     </Button>
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handleDownloadDocument(document.key)}
+                      onClick={async () => {
+                        setLoading("download");
+
+                        try {
+                          await handleDownloadDocument(document.key); // your actual logic
+                        } finally {
+                          setLoading("");
+                        }
+                      }}
+                      disabled={loading === "view" || loading === "download"}
                     >
-                      <Download className="h-4 w-4 mr-1" />
+                      {loading === "download" ? (
+                        <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                      ) : (
+                        <Download className="h-4 w-4 mr-1" />
+                      )}
                       Download
                     </Button>
                   </div>

@@ -233,3 +233,31 @@ export const handleEmployeeUploadDocuments = async (
 
   return response;
 };
+
+export const handleClientUploadDocuments = async (
+  files: File[],
+  selectedCategory: string
+) => {
+  console.log(111);
+
+  const formData = new FormData();
+  files.forEach((file) => {
+    formData.append("files", file); // "files" is the field name expected by the server
+  });
+
+  formData.append("category", selectedCategory);
+
+  const currentUser = JSON.parse(localStorage.getItem("currentUser") || "{}");
+
+  console.log(currentUser);
+
+  const response = await fetch(`${SERVER_URL}/upload`, {
+    method: "POST",
+    body: formData,
+    headers: {
+      Authorization: currentUser?.token,
+    },
+  });
+
+  return response;
+};
