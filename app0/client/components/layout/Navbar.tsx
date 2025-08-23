@@ -27,7 +27,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { DocumentUpload } from "@/components/DocumentUpload";
 import { useEffect, useState } from "react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { getCurrentUser, logout } from "@/lib/auth";
