@@ -52,6 +52,8 @@ type DocumentCategory =
   | "Purchase"
   | "Expense"
   | "Bank Statement"
+  | "Cash"
+  | "Others"
   | null;
 
 const categories: DocumentCategory[] = [
