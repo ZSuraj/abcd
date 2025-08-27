@@ -59,6 +59,8 @@ const categories: DocumentCategory[] = [
   "Purchase",
   "Expense",
   "Bank Statement",
+  "Cash",
+  "Others",
 ];
 
 export function EmployeeDocumentUpload({ user }: { user: User }) {
