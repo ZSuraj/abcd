@@ -106,7 +106,7 @@ export default function AdminClients() {
     const filtered = clients.filter(
       (client) =>
         client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        client.email.toLowerCase().includes(searchTerm.toLowerCase())
+        client.email.toLowerCase().includes(searchTerm.toLowerCase()),
     );
     setFilteredClients(filtered);
   }, [searchTerm, clients]);
@@ -241,7 +241,7 @@ export default function AdminClients() {
       if (res.ok) {
         toast.success("Task deleted successfully!");
         // Remove from local state
-        setClientTasks(clientTasks.filter(task => task.id !== taskId));
+        setClientTasks(clientTasks.filter((task) => task.id !== taskId));
         // Refresh clients to update task count
         const clientsRes = await fetchAllClients();
         if (clientsRes.ok) {
@@ -364,7 +364,7 @@ export default function AdminClients() {
                             className="h-4 w-4 p-0 ml-1 hover:bg-red-100"
                             onClick={() => {
                               const newCategories = clientCategories.filter(
-                                (c) => c.id !== category.id
+                                (c) => c.id !== category.id,
                               );
                               setClientCategories(newCategories);
                             }}
@@ -377,7 +377,7 @@ export default function AdminClients() {
                     <Select
                       onValueChange={(value) => {
                         const category = allCategories.find(
-                          (c) => c.id === value
+                          (c) => c.id === value,
                         );
                         if (
                           category &&
@@ -395,8 +395,8 @@ export default function AdminClients() {
                           .filter(
                             (category) =>
                               !clientCategories.find(
-                                (c) => c.id === category.id
-                              )
+                                (c) => c.id === category.id,
+                              ),
                           )
                           .map((category) => (
                             <SelectItem key={category.id} value={category.id}>
@@ -428,10 +428,7 @@ export default function AdminClients() {
           </Dialog>
 
           {/* Task Management Dialog */}
-          <Dialog
-            open={isTaskDialogOpen}
-            onOpenChange={setIsTaskDialogOpen}
-          >
+          <Dialog open={isTaskDialogOpen} onOpenChange={setIsTaskDialogOpen}>
             <DialogContent className="max-w-2xl">
               <DialogHeader>
                 <DialogTitle>Manage Tasks</DialogTitle>
@@ -447,7 +444,7 @@ export default function AdminClients() {
                     placeholder="Add new task..."
                     value={newTaskTitle}
                     onChange={(e) => setNewTaskTitle(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleCreateTask()}
+                    onKeyDown={(e) => e.key === "Enter" && handleCreateTask()}
                     className="flex-1"
                   />
                   <Button
@@ -466,7 +463,9 @@ export default function AdminClients() {
                 {/* Existing Tasks */}
                 <div>
                   <div className="flex items-center justify-between mb-3">
-                    <h4 className="font-medium">Tasks ({clientTasks.length})</h4>
+                    <h4 className="font-medium">
+                      Tasks ({clientTasks.length})
+                    </h4>
                     {clientTasks.length > 0 && (
                       <Button
                         variant="ghost"
@@ -503,7 +502,9 @@ export default function AdminClients() {
                                   {task.status}
                                 </Badge>
                                 <span className="text-xs text-gray-500">
-                                  {new Date(task.created_at).toLocaleDateString()}
+                                  {new Date(
+                                    task.created_at,
+                                  ).toLocaleDateString()}
                                 </span>
                               </div>
                             </div>
@@ -593,30 +594,30 @@ export default function AdminClients() {
                     </div>
                   )}
                   <div className="pt-2 border-t">
-                     <div className="flex items-center justify-between">
-                       <p className="text-xs text-gray-500">Categories</p>
-                       <Button
-                         variant="ghost"
-                         size="sm"
-                         onClick={() => handleOpenCategoryDialog(client)}
-                         className="h-6 px-2 text-xs"
-                       >
-                         <Tag className="h-3 w-3 mr-1" />
-                         Manage
-                       </Button>
-                     </div>
-                     <div className="flex items-center justify-between">
-                       <p className="text-xs text-gray-500">Tasks</p>
-                       <Button
-                         variant="ghost"
-                         size="sm"
-                         onClick={() => handleOpenTaskDialog(client)}
-                         className="h-6 px-2 text-xs"
-                       >
-                         <CheckSquare className="h-3 w-3 mr-1" />
-                         Manage
-                       </Button>
-                     </div>
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs text-gray-500">Categories</p>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleOpenCategoryDialog(client)}
+                        className="h-6 px-2 text-xs"
+                      >
+                        <Tag className="h-3 w-3 mr-1" />
+                        Manage
+                      </Button>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs text-gray-500">Tasks</p>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleOpenTaskDialog(client)}
+                        className="h-6 px-2 text-xs"
+                      >
+                        <CheckSquare className="h-3 w-3 mr-1" />
+                        Manage
+                      </Button>
+                    </div>
                     {/* <div className="flex flex-wrap gap-1 mt-1">
                        {client.categories && client.categories.length > 0 ? (
                          client.categories.map((category) => (
