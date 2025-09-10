@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -28,8 +28,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { handleClientUploadDocuments, handleUploadDocuments } from "@/lib/api";
-import { Client, User } from "@/types";
+import {
+  getCategories,
+  handleClientUploadDocuments,
+  handleUploadDocuments,
+} from "@/lib/api";
+import { Category, Client, User } from "@/types";
 import { useRouter } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { toast } from "sonner";
@@ -56,8 +60,8 @@ export function ClientDocumentUpload({ user }: { user: User }) {
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showCategoryDialog, setShowCategoryDialog] = useState(false);
-  const [selectedCategory, setSelectedCategory] =
-    useState<DocumentCategory>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [categories, setCategories] = useState<Category[]>([]);
 
   const router = useRouter();
 
@@ -72,6 +76,7 @@ export function ClientDocumentUpload({ user }: { user: User }) {
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     setDragOver(false);
+    setShowCategoryDialog(true);
 
     const files = e.dataTransfer.files;
     if (files) {
@@ -163,6 +168,21 @@ export function ClientDocumentUpload({ user }: { user: User }) {
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
   };
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await getCategories();
+        const data = await res.json();
+        if (data && data.data) {
+          setCategories(data.data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch categories", err);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -326,18 +346,18 @@ export function ClientDocumentUpload({ user }: { user: User }) {
             <div className="grid grid-cols-1 gap-4 py-4">
               {categories.map((category) => (
                 <Button
-                  key={category}
+                  key={category.id}
                   variant={
-                    selectedCategory === category ? "default" : "outline"
+                    selectedCategory === category.name ? "default" : "outline"
                   }
-                  className="w-full"
+                  className="w-full capitalize"
                   onClick={() => {
-                    setSelectedCategory(category);
+                    setSelectedCategory(category.name);
                     setShowCategoryDialog(false);
                     fileInputRef.current?.click();
                   }}
                 >
-                  {category}
+                  {category.name}
                 </Button>
               ))}
             </div>

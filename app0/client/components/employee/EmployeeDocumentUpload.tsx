@@ -150,7 +150,6 @@ export function EmployeeDocumentUpload({ user }: { user: User }) {
 
     // Call the upload handler
     const res = (await handleEmployeeUploadDocuments(
-      user.data.user.id,
       selectedFiles,
       selectedCategory as string,
       selectedClientId as string
@@ -377,7 +376,7 @@ export function EmployeeDocumentUpload({ user }: { user: User }) {
           </p>
         </div>
       )}
-      {user?.data.user.type === "client" && (
+      {user?.data.user.role === "client" && (
         <div className="w-full flex items-center justify-center">
           <Button
             variant="link"

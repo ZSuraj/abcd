@@ -33,6 +33,7 @@ import { getCurrentUser, logout } from "@/lib/auth";
 import { useRouter } from "next/navigation";
 import { getEmployeesClients } from "@/lib/api";
 import { EmployeeDocumentUpload } from "../employee/EmployeeDocumentUpload";
+import { Noise } from "../ui/noise";
 
 const getRoleColor = (role: UserRole) => {
   switch (role) {
@@ -55,11 +56,11 @@ export function Navbar() {
   const [unreadCount, setUnreadCount] = useState<number>(0);
 
   useEffect(() => {
-    getEmployeesClients().then((data) => {
-      data.json().then((data: any) => {
-        setClients(data.data as Client[]);
-      });
-    });
+    // getEmployeesClients().then((data) => {
+    //   data.json().then((data: any) => {
+    //     setClients(data.data as Client[]);
+    //   });
+    // });
     setUser(getCurrentUser());
   }, []);
 
@@ -69,8 +70,8 @@ export function Navbar() {
         <SidebarTrigger className="w-4 h-4" />
 
         <div className="flex items-center">
-          {(user?.data.user.type === "admin" ||
-            user?.data.user.type === "employee") && (
+          {(user?.data.user.role === "admin" ||
+            user?.data.user.role === "employee") && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm" className="relative px-2">
@@ -104,7 +105,7 @@ export function Navbar() {
             </DropdownMenu>
           )}
 
-          {user?.data.user.type === "employee" && (
+          {user?.data.user.role === "employee" && (
             <Drawer>
               <DrawerTrigger asChild>
                 <Button

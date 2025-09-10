@@ -7,7 +7,7 @@ import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import EmployeeClientsDocsList from "./EmployeeClientsDocsList";
 
-export default function EmployeeClientList({ user }: { user: User }) {
+export default function EmployeeClientList() {
   const [clients, setClients] = useState<Client[]>([]);
   const [clientDocs, setClientDocs] = useState<Document[]>([]);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
@@ -28,13 +28,13 @@ export default function EmployeeClientList({ user }: { user: User }) {
   }
 
   async function getDocs(clientId: string) {
-    const res = await getEmployeesClientDocs(clientId, user?.data.user.id);
+    const res = await getEmployeesClientDocs(clientId);
     if (!res.ok) {
       console.log("Error fetching documents");
     }
-    const data = (await res.json()) as { documents: Document[] };
-    if (data.documents) {
-      setClientDocs(data.documents);
+    const data = (await res.json()) as { data: Document[] };
+    if (data.data) {
+      setClientDocs(data.data);
     }
   }
 
@@ -90,12 +90,12 @@ export default function EmployeeClientList({ user }: { user: User }) {
                           <span>{client.no_of_docs} documents</span>
                         </div>
 
-                        <Badge
+                        {/* <Badge
                           variant="outline"
                           className="bg-blue-50 text-blue-700"
                         >
                           {client.no_of_tasks} tasks
-                        </Badge>
+                        </Badge> */}
                       </div>
 
                       <Button

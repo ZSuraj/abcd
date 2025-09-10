@@ -66,7 +66,7 @@ export function EmployeeDashboard() {
               <div>
                 <p className="text-sm text-gray-600">In Progress</p>
                 <p className="text-2xl font-bold text-blue-600">
-                  {tasks.filter((t) => t?.status === "in-progress").length}
+                  {tasks?.filter((t) => t?.status === "in-progress").length}
                 </p>
               </div>
               <div className="h-8 w-8 bg-blue-100 rounded-full flex items-center justify-center">
@@ -82,7 +82,7 @@ export function EmployeeDashboard() {
               <div>
                 <p className="text-sm text-gray-600">In Review</p>
                 <p className="text-2xl font-bold text-orange-600">
-                  {tasks.filter((t) => t?.status === "in-review").length}
+                  {tasks?.filter((t) => t?.status === "in-review").length}
                 </p>
               </div>
               <div className="h-8 w-8 bg-orange-100 rounded-full flex items-center justify-center">
@@ -98,7 +98,7 @@ export function EmployeeDashboard() {
               <div>
                 <p className="text-sm text-gray-600">Completed</p>
                 <p className="text-2xl font-bold text-green-600">
-                  {tasks.filter((t) => t?.status === "completed").length}
+                  {tasks?.filter((t) => t?.status === "completed").length}
                 </p>
               </div>
               <div className="h-8 w-8 bg-green-100 rounded-full flex items-center justify-center">
@@ -119,7 +119,7 @@ export function EmployeeDashboard() {
           </CardHeader>
           <CardContent className="space-y-4">
             {tasks
-              .sort(
+              ?.sort(
                 (a, b) =>
                   new Date(b.created_at).getTime() -
                   new Date(a.created_at).getTime()
