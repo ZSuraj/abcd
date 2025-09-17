@@ -25,7 +25,7 @@ export default function ManagerClients() {
       try {
         const res = await fetchClients();
         if (res.ok) {
-          const data = await res.json();
+          const data = (await res.json()) as { data: Client[] };
           setClients(data.data || []);
           setFilteredClients(data.data || []);
         }
@@ -42,7 +42,7 @@ export default function ManagerClients() {
     const filtered = clients.filter(
       (client) =>
         client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        client.email.toLowerCase().includes(searchTerm.toLowerCase())
+        client.email.toLowerCase().includes(searchTerm.toLowerCase()),
     );
     setFilteredClients(filtered);
   }, [searchTerm, clients]);

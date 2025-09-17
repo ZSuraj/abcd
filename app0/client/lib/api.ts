@@ -1,4 +1,4 @@
-import { TaskStatus, User } from "@/types";
+import { RecurringTask, TaskStatus, User } from "@/types";
 import { getCurrentUser } from "./auth";
 
 export const SERVER_URL = process.env.NEXT_PUBLIC_SERVER_URL;
@@ -111,7 +111,7 @@ export async function fetchAllClients() {
 export async function handleReassignEmployee(
   clientId: string,
   newEmployeeId: string,
-  oldEmployeeId: string
+  oldEmployeeId: string,
 ) {
   const user = JSON.parse(localStorage.getItem("currentUser") || "{}");
 
@@ -135,7 +135,7 @@ export const handleUploadDocuments = async (
   clientId: string,
   files: File[],
   selectedCategory: string,
-  selectedClient: number
+  selectedClient: number,
 ) => {
   console.log(111);
 
@@ -195,7 +195,7 @@ export async function getEmployeesClientDocs(clientId: string) {
 export const handleEmployeeUploadDocuments = async (
   files: File[],
   selectedCategory: string,
-  selectedClientId: string
+  selectedClientId: string,
 ) => {
   console.log(111);
 
@@ -224,7 +224,7 @@ export const handleEmployeeUploadDocuments = async (
 
 export const handleClientUploadDocuments = async (
   files: File[],
-  selectedCategory: string
+  selectedCategory: string,
 ) => {
   const formData = new FormData();
   files.forEach((file) => {
@@ -248,7 +248,7 @@ export const handleClientUploadDocuments = async (
 
 // new
 
-export async function createClient(formData) {
+export async function createClient(formData: any) {
   const user = await getCurrentUser();
 
   console.log(formData);
@@ -266,7 +266,7 @@ export async function createClient(formData) {
   return response;
 }
 
-export async function createManager(formData) {
+export async function createManager(formData: any) {
   const user = await getCurrentUser();
 
   const response = await fetch(`${SERVER_URL}/create-manager`, {
@@ -280,7 +280,7 @@ export async function createManager(formData) {
   return response;
 }
 
-export async function createEmployee(formData) {
+export async function createEmployee(formData: any) {
   const user = await getCurrentUser();
 
   const response = await fetch(`${SERVER_URL}/create-employee`, {
@@ -321,7 +321,7 @@ export async function getRelationshipTree() {
 export async function updateRelationshipTree(
   clientId: string,
   managerId: string,
-  employeeIds: string[]
+  employeeIds: string[],
 ) {
   const user = await getCurrentUser();
   const response = await fetch(`${SERVER_URL}/create-client-relationship`, {
@@ -352,7 +352,7 @@ export async function replaceEmployee(
   clientId: string,
   managerId: string,
   oldEmployeeId: string,
-  newEmployeeId: string
+  newEmployeeId: string,
 ) {
   const user = await getCurrentUser();
   const response = await fetch(`${SERVER_URL}/replace-employee`, {
@@ -374,7 +374,7 @@ export async function replaceEmployee(
 export async function removeEmployee(
   clientId: string,
   managerId: string,
-  employeeId: string
+  employeeId: string,
 ) {
   console.log(clientId, managerId, employeeId);
 
@@ -397,7 +397,7 @@ export async function removeEmployee(
 export async function addEmployee(
   clientId: string,
   managerId: string,
-  employeeId: string
+  employeeId: string,
 ) {
   const user = await getCurrentUser();
   const response = await fetch(`${SERVER_URL}/add-employee`, {
@@ -572,5 +572,80 @@ export async function deleteClientTask(taskId: string) {
       taskId,
     }),
   });
+  return response;
+}
+
+export async function createRecurringTask(taskData: RecurringTask) {
+  const user = getCurrentUser();
+  const response = await fetch(`${SERVER_URL}/create-recurring-task`, {
+    method: "POST",
+    headers: {
+      Authorization: user?.access_token as string,
+    },
+    body: JSON.stringify({
+      taskData: taskData,
+    }),
+  });
+  return response;
+}
+
+export async function fetchRecurringTasks() {
+  const user = getCurrentUser();
+  const response = await fetch(`${SERVER_URL}/get-recurring-tasks`, {
+    method: "POST",
+    headers: {
+      Authorization: user?.access_token as string,
+    },
+  });
+  return response;
+}
+
+export async function deleteRecurringTask(taskId: string) {
+  const user = getCurrentUser();
+  const response = await fetch(`${SERVER_URL}/delete-recurring-task`, {
+    method: "POST",
+    headers: {
+      Authorization: user?.access_token as string,
+    },
+    body: JSON.stringify({
+      taskId,
+    }),
+  });
+  return response;
+}
+
+export async function fetchDailyTasks() {
+  const user = getCurrentUser();
+
+  const response = await fetch(`${SERVER_URL}/get-daily-tasks`, {
+    method: "POST",
+    headers: {
+      Authorization: user?.access_token as string,
+    },
+  });
+
+  return response;
+}
+
+export async function updateDailyTaskStatus(
+  taskId: string,
+  status: TaskStatus,
+) {
+  // const task = tasks.find((t) => t.id === taskId);
+  if (!taskId) return;
+
+  const user = getCurrentUser();
+
+  const response = await fetch(`${SERVER_URL}/update-daily-task`, {
+    method: "POST",
+    headers: {
+      Authorization: user?.access_token as string,
+    },
+    body: JSON.stringify({
+      taskId,
+      status,
+    }),
+  });
+
   return response;
 }

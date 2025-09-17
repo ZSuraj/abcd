@@ -25,6 +25,7 @@ export interface Client {
     id: string;
   };
   categories?: Category[];
+  daily_tasks?: Task[];
 }
 
 export interface Document {
@@ -44,6 +45,7 @@ export interface Document {
   file_path: string;
   key: string;
   uploaded_by: string;
+  name: string;
 }
 
 export interface Task {
@@ -112,10 +114,43 @@ export interface ManagerEmployee {
 //   }>;
 // }
 
+export interface EmployeeWithRelationships {
+  employee_id: string;
+  employee_name: string;
+  employee_email: string;
+  employees: Employee[];
+}
+
+export interface ManagerWithRelationships {
+  manager_id: string;
+  manager_name: string;
+  manager_email: string;
+  employees: EmployeeWithRelationships[];
+}
+
 export interface ClientWithRelationships {
   client_id: string;
+  client_email: string;
   client_name: string;
-  managers: Manager[];
+  managers: ManagerWithRelationships[];
+}
+
+export type RecurrenceType = "monthly" | "quarterly" | "yearly";
+
+export interface RecurringTask {
+  id?: string;
+  title: string;
+  description?: string;
+  recurrence_type: RecurrenceType;
+  remind_before_days: number; // 1-30 days before the recurrence date
+  created_at: string;
+  // updatedAt: string;
+  // status: TaskStatus;
+  priority: "low" | "medium" | "high";
+  client_id: string;
+  day_of_month?: null;
+  month_of_year?: null;
+  quarter_month_offset?: null;
 }
 
 // Extended Employee interface for relationships

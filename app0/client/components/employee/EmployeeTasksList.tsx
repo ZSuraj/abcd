@@ -47,14 +47,14 @@ import { useEffect, useState } from "react";
 export default function EmployeeTasksList() {
   const [user, setUser] = useState<User | null>(null);
   const [statusFilter, setStatusFilter] = useState<Task["status"] | "all">(
-    "all"
+    "all",
   );
   const [categoryFilter, setCategoryFilter] = useState<string | "all">("all");
   const [tasks, setTasks] = useState<Task[]>([]);
   const [filteredTasks, setFilteredTasks] = useState<Task[]>([]);
   const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest");
   const [selectedTaskForQuery, setSelectedTaskForQuery] = useState<Task | null>(
-    null
+    null,
   );
   const [querySubject, setQuerySubject] = useState("");
   const [queryMessage, setQueryMessage] = useState("");
@@ -299,8 +299,8 @@ export default function EmployeeTasksList() {
                       {task?.priority === "high"
                         ? "High"
                         : task?.priority === "medium"
-                        ? "Medium"
-                        : "Low"}
+                          ? "Medium"
+                          : "Low"}
                     </span>
                   </div>
                 </div>
@@ -365,7 +365,7 @@ export default function EmployeeTasksList() {
                               </Button>
                             </div>
                           </li>
-                        )
+                        ),
                       )}
                     </ul>
                   </div>
@@ -391,7 +391,8 @@ export default function EmployeeTasksList() {
                     <DialogHeader>
                       <DialogTitle>Raise Query for Task</DialogTitle>
                       <DialogDescription>
-                        Raise a query regarding "{selectedTaskForQuery?.title}".
+                        Raise a query regarding &#34;
+                        {selectedTaskForQuery?.title}&#34;.
                       </DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-4 py-4">

@@ -147,8 +147,8 @@ export default function AdminTasks() {
         // Update the local state to reflect the change
         setTasks((prevTasks) =>
           prevTasks.map((task) =>
-            task.id === taskId ? { ...task, status: newStatus as any } : task
-          )
+            task.id === taskId ? { ...task, status: newStatus as any } : task,
+          ),
         );
 
         console.log(`Task ${taskId} status updated to ${newStatus}`);
@@ -343,7 +343,7 @@ export default function AdminTasks() {
         // size: 48,
       }),
     ],
-    [expandedRows, updatingStatus]
+    [expandedRows, updatingStatus, columnHelper, toggleRowExpansion],
   );
 
   const table = useReactTable({
@@ -377,7 +377,7 @@ export default function AdminTasks() {
     table.getColumn("category")?.setFilterValue(categoryFilter);
   }, [statusFilter, categoryFilter, table]);
 
-  const toggleRowExpansion = (taskId: string) => {
+  function toggleRowExpansion(taskId: string) {
     const newExpandedRows = new Set(expandedRows);
     if (newExpandedRows.has(taskId)) {
       newExpandedRows.delete(taskId);
@@ -385,7 +385,7 @@ export default function AdminTasks() {
       newExpandedRows.add(taskId);
     }
     setExpandedRows(newExpandedRows);
-  };
+  }
 
   if (loading) {
     return (
@@ -533,7 +533,7 @@ export default function AdminTasks() {
                             ? null
                             : flexRender(
                                 header.column.columnDef.header,
-                                header.getContext()
+                                header.getContext(),
                               )}
                         </TableHead>
                       ))}
@@ -548,7 +548,7 @@ export default function AdminTasks() {
                           <TableCell key={cell.id}>
                             {flexRender(
                               cell.column.columnDef.cell,
-                              cell.getContext()
+                              cell.getContext(),
                             )}
                           </TableCell>
                         ))}
@@ -572,7 +572,7 @@ export default function AdminTasks() {
                                           <FileText className="h-4 w-4 text-gray-400" />
                                           <span className="text-sm font-medium truncate">
                                             {extractOriginalFileName(
-                                              doc.file_path
+                                              doc.file_path,
                                             )}
                                           </span>
                                         </div>
@@ -582,7 +582,7 @@ export default function AdminTasks() {
                                         </div>
                                         <div className="text-xs text-gray-400">
                                           {new Date(
-                                            doc.created_at
+                                            doc.created_at,
                                           ).toLocaleDateString()}
                                         </div>
                                         <div className="flex gap-2">
@@ -602,7 +602,7 @@ export default function AdminTasks() {
                                             size="sm"
                                             onClick={() =>
                                               handleDownloadDocument(
-                                                doc.file_path
+                                                doc.file_path,
                                               )
                                             }
                                             className="flex-1"

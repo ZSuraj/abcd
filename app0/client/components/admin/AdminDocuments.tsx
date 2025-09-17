@@ -50,7 +50,7 @@ export default function AdminDocuments() {
       try {
         const res = await fetchAllDocuments();
         if (res.ok) {
-          const data = await res.json();
+          const data = (await res.json()) as { data: Document[] };
           setDocuments(data.data || []);
           setFilteredDocuments(data.data || []);
         }
@@ -68,7 +68,7 @@ export default function AdminDocuments() {
       (doc) =>
         doc.file_path.toLowerCase().includes(searchTerm.toLowerCase()) ||
         doc.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        doc.type.toLowerCase().includes(searchTerm.toLowerCase())
+        doc.type.toLowerCase().includes(searchTerm.toLowerCase()),
     );
     setFilteredDocuments(filtered);
   }, [searchTerm, documents]);
@@ -182,7 +182,7 @@ export default function AdminDocuments() {
                   <TableHead>Document</TableHead>
                   <TableHead>Category</TableHead>
                   <TableHead>Type</TableHead>
-                  <TableHead>Size</TableHead>
+                  {/*<TableHead>Size</TableHead>*/}
                   <TableHead>Client</TableHead>
                   <TableHead>Uploaded By</TableHead>
                   <TableHead>Upload Date</TableHead>
@@ -209,7 +209,7 @@ export default function AdminDocuments() {
                     <TableCell>
                       <Badge variant="secondary">{doc.type}</Badge>
                     </TableCell>
-                    <TableCell>{formatFileSize(doc.size)}</TableCell>
+                    {/*<TableCell>{formatFileSize(doc.size)}</TableCell>*/}
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <Building className="h-4 w-4 text-gray-400" />
@@ -229,7 +229,11 @@ export default function AdminDocuments() {
                     <TableCell>
                       <div className="flex items-center gap-2 text-sm">
                         <Calendar className="h-4 w-4 text-gray-400" />
-                        {new Date(doc.created_at).toLocaleDateString()}
+                        {new Date(doc.created_at).toLocaleDateString("en-IN", {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        })}
                       </div>
                     </TableCell>
                     <TableCell>

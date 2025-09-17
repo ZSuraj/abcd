@@ -19,7 +19,7 @@ export default function AdminManagers() {
   const [managers, setManagers] = useState<Manager[]>([]);
   const [filteredManagers, setFilteredManagers] = useState<Manager[]>([]);
   const [relationships, setRelationships] = useState<ClientWithRelationships[]>(
-    []
+    [],
   );
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -31,7 +31,7 @@ export default function AdminManagers() {
         const managersRes = await fetchAllManagers();
         let managersData: Manager[] = [];
         if (managersRes.ok) {
-          const data = await managersRes.json();
+          const data = (await managersRes.json()) as { data: Manager[] };
           managersData = data.data || [];
         }
 
@@ -50,7 +50,7 @@ export default function AdminManagers() {
     const filtered = managers.filter(
       (manager) =>
         manager.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        manager.email.toLowerCase().includes(searchTerm.toLowerCase())
+        manager.email.toLowerCase().includes(searchTerm.toLowerCase()),
     );
     setFilteredManagers(filtered);
   }, [searchTerm, managers]);

@@ -44,7 +44,7 @@ export default function EmployeeClientsDocsList({
 
         <div>
           <h2 className="text-2xl font-bold text-gray-900">
-            {client.name}'s Documents
+            {client.name}&#39;s Documents
           </h2>
           <p className="text-gray-600">{client.email}</p>
         </div>

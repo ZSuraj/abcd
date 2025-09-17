@@ -38,6 +38,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { extractOriginalFileName } from "@/utils";
+import { handleDownloadDocument, handleViewDocument } from "@/lib/utils";
 
 export default function ManagerDocuments() {
   const [documents, setDocuments] = useState<Document[]>([]);
@@ -50,7 +51,7 @@ export default function ManagerDocuments() {
       try {
         const res = await fetchDocuments();
         if (res.ok) {
-          const data = await res.json();
+          const data = (await res.json()) as { data: Document[] };
           setDocuments(data.data || []);
           setFilteredDocuments(data.data || []);
         }
@@ -68,42 +69,10 @@ export default function ManagerDocuments() {
       (doc) =>
         doc.file_path.toLowerCase().includes(searchTerm.toLowerCase()) ||
         doc.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        doc.type.toLowerCase().includes(searchTerm.toLowerCase())
+        doc.type.toLowerCase().includes(searchTerm.toLowerCase()),
     );
     setFilteredDocuments(filtered);
   }, [searchTerm, documents]);
-
-  const handleViewDocument = async (docKey: string) => {
-    try {
-      const response = await fetchDocument(docKey);
-      if (response.ok) {
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        window.open(url, "_blank");
-      }
-    } catch (error) {
-      console.error("Error viewing document:", error);
-    }
-  };
-
-  const handleDownloadDocument = async (docKey: string, fileName: string) => {
-    try {
-      const response = await fetchDocument(docKey);
-      if (response.ok) {
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = fileName;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-      }
-    } catch (error) {
-      console.error("Error downloading document:", error);
-    }
-  };
 
   const formatFileSize = (bytes: number) => {
     if (bytes === 0) return "0 Bytes";
@@ -182,7 +151,7 @@ export default function ManagerDocuments() {
                   <TableHead>Document</TableHead>
                   <TableHead>Category</TableHead>
                   <TableHead>Type</TableHead>
-                  <TableHead>Size</TableHead>
+                  {/*<TableHead>Size</TableHead>*/}
                   <TableHead>Client</TableHead>
                   <TableHead>Uploaded By</TableHead>
                   <TableHead>Upload Date</TableHead>
@@ -209,7 +178,7 @@ export default function ManagerDocuments() {
                     <TableCell>
                       <Badge variant="secondary">{doc.type}</Badge>
                     </TableCell>
-                    <TableCell>{formatFileSize(doc.size)}</TableCell>
+                    {/*<TableCell>{formatFileSize(doc.size)}</TableCell>*/}
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <Building className="h-4 w-4 text-gray-400" />
@@ -229,7 +198,11 @@ export default function ManagerDocuments() {
                     <TableCell>
                       <div className="flex items-center gap-2 text-sm">
                         <Calendar className="h-4 w-4 text-gray-400" />
-                        {new Date(doc.created_at).toLocaleDateString()}
+                        {new Date(doc.created_at).toLocaleDateString("en-IN", {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        })}{" "}
                       </div>
                     </TableCell>
                     <TableCell>

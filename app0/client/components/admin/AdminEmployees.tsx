@@ -30,7 +30,7 @@ export default function AdminEmployees() {
         const employeesRes = await fetchAllEmployees();
         let employeesData: Employee[] = [];
         if (employeesRes.ok) {
-          const data = await employeesRes.json();
+          const data = (await employeesRes.json()) as { data: Employee[] };
           employeesData = data.data || [];
           setEmployees(employeesData);
         }
@@ -62,9 +62,10 @@ export default function AdminEmployees() {
   }, []);
 
   useEffect(() => {
-    const filtered = employeesWithTasks.filter((employee) =>
-      employee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      employee.email.toLowerCase().includes(searchTerm.toLowerCase())
+    const filtered = employeesWithTasks.filter(
+      (employee) =>
+        employee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        employee.email.toLowerCase().includes(searchTerm.toLowerCase()),
     );
     setFilteredEmployees(filtered);
   }, [searchTerm, employeesWithTasks]);
@@ -122,14 +123,16 @@ export default function AdminEmployees() {
           <p className="mt-1 text-sm text-gray-500">
             {searchTerm
               ? "Try adjusting your search terms."
-              : "Get started by creating a new employee."
-            }
+              : "Get started by creating a new employee."}
           </p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredEmployees.map((employee) => (
-            <Card key={employee.id} className="hover:shadow-md transition-shadow">
+            <Card
+              key={employee.id}
+              className="hover:shadow-md transition-shadow"
+            >
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <User className="h-5 w-5" />

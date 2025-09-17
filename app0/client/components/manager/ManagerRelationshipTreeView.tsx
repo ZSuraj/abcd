@@ -93,7 +93,8 @@ function TreeNode({
             variant="ghost"
             size="sm"
             onClick={(e) => {
-              e.stopPropagation();app
+              e.stopPropagation();
+
               onAddEmployee(client.id);
             }}
           >
@@ -171,7 +172,7 @@ export default function ManagerRelationshipTreeView({
   const [clients, setClients] = useState<ManagerClientData[]>();
   const [filteredClients, setFilteredClients] = useState<ManagerClientData[]>();
   const [expandedClients, setExpandedClients] = useState<Set<string>>(
-    new Set()
+    new Set(),
   );
 
   // Dialog states
@@ -217,7 +218,7 @@ export default function ManagerRelationshipTreeView({
       const response = await addEmployee(
         selectedClientId,
         managerId,
-        selectedEmployeeId
+        selectedEmployeeId,
       );
 
       if (response.ok) {
@@ -264,7 +265,7 @@ export default function ManagerRelationshipTreeView({
         selectedClientId,
         managerId,
         selectedEmployeeToReplace,
-        selectedReplacementEmployeeId
+        selectedReplacementEmployeeId,
       );
 
       if (response.ok) {
@@ -287,7 +288,7 @@ export default function ManagerRelationshipTreeView({
   const handleRemoveEmployee = async (clientId: string, employeeId: string) => {
     if (
       !confirm(
-        "Are you sure you want to remove this employee from the relationship?"
+        "Are you sure you want to remove this employee from the relationship?",
       )
     ) {
       return;
@@ -377,7 +378,7 @@ export default function ManagerRelationshipTreeView({
     }
 
     const filtered = clients.filter((client) =>
-      client.name.toLowerCase().includes(searchTerm.toLowerCase())
+      client.name.toLowerCase().includes(searchTerm.toLowerCase()),
     );
 
     setFilteredClients(filtered);
@@ -418,7 +419,7 @@ export default function ManagerRelationshipTreeView({
           <DialogHeader>
             <DialogTitle>Add Employee</DialogTitle>
             <p className="text-sm text-gray-600">
-              Select an employee to add to this client's team.
+              Select an employee to add to this client&#39;s team.
             </p>
           </DialogHeader>
           <div className="space-y-4">
@@ -439,9 +440,9 @@ export default function ManagerRelationshipTreeView({
                           (client) =>
                             client.id === selectedClientId &&
                             client.employees?.some(
-                              (emp) => emp.id === employee.id
-                            )
-                        )
+                              (emp) => emp.id === employee.id,
+                            ),
+                        ),
                     )
                     .map((employee) => (
                       <SelectItem key={employee.id} value={employee.id}>

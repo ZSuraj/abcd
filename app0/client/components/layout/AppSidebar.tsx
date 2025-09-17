@@ -56,12 +56,24 @@ export function AppSidebar() {
               items: [
                 {
                   title: "Daily",
-                  url: "#",
+                  url: "/tasks/daily",
                 },
                 {
                   title: "Assigned",
-                  url: "#",
+                  url: "/tasks",
                 },
+              ],
+            }),
+            ...(userRole === "admin" && {
+              items: [
+                {
+                  title: "Assigned",
+                  url: "/tasks",
+                },
+                // {
+                //   title: "Recurring",
+                //   url: "/tasks/recurring",
+                // },
               ],
             }),
           },

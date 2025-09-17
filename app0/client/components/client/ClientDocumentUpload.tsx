@@ -124,7 +124,7 @@ export function ClientDocumentUpload({ user }: { user: User }) {
     // Call the upload handler
     const res = (await handleClientUploadDocuments(
       selectedFiles,
-      selectedCategory as string
+      selectedCategory as string,
     )) as Response;
 
     if (!res.ok) {
@@ -144,7 +144,7 @@ export function ClientDocumentUpload({ user }: { user: User }) {
 
       // Reset form
       const fileInput = document.getElementById(
-        "file-upload"
+        "file-upload",
       ) as HTMLInputElement;
       if (fileInput) fileInput.value = "";
 
@@ -173,7 +173,7 @@ export function ClientDocumentUpload({ user }: { user: User }) {
     const fetchCategories = async () => {
       try {
         const res = await getCategories();
-        const data = await res.json();
+        const data = (await res.json()) as { data: Category[] };
         if (data && data.data) {
           setCategories(data.data);
         }

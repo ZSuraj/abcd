@@ -74,7 +74,7 @@ export default function AdminClients() {
       try {
         const res = await fetchAllClients();
         if (res.ok) {
-          const data = await res.json();
+          const data = (await res.json()) as { data: Client[] };
           setClients(data.data || []);
           setFilteredClients(data.data || []);
         }
@@ -92,7 +92,7 @@ export default function AdminClients() {
       try {
         const res = await getAllCategories();
         if (res.ok) {
-          const data = await res.json();
+          const data = (await res.json()) as { data: Category[] };
           setAllCategories(data.data || []);
         }
       } catch (error) {
@@ -123,7 +123,7 @@ export default function AdminClients() {
         // Refresh categories
         const categoriesRes = await getAllCategories();
         if (categoriesRes.ok) {
-          const data = await categoriesRes.json();
+          const data = (await categoriesRes.json()) as { data: Category[] };
           setAllCategories(data.data || []);
         }
       } else {
@@ -145,7 +145,7 @@ export default function AdminClients() {
     try {
       const res = await getClientCategories(client.id);
       if (res.ok) {
-        const data = await res.json();
+        const data = (await res.json()) as { data: Category[] };
         setClientCategories(data.data || []);
       } else {
         setClientCategories([]);
@@ -169,7 +169,7 @@ export default function AdminClients() {
         // Refresh clients to show updated categories
         const clientsRes = await fetchAllClients();
         if (clientsRes.ok) {
-          const data = await clientsRes.json();
+          const data = (await clientsRes.json()) as { data: Client[] };
           setClients(data.data || []);
           setFilteredClients(data.data || []);
         }
@@ -190,7 +190,7 @@ export default function AdminClients() {
     try {
       const res = await getClientTasks(client.id);
       if (res.ok) {
-        const data = await res.json();
+        const data = (await res.json()) as { data: Task[] };
         setClientTasks(data.data || []);
       } else {
         setClientTasks([]);
@@ -214,13 +214,13 @@ export default function AdminClients() {
         // Refresh tasks
         const tasksRes = await getClientTasks(selectedClient.id);
         if (tasksRes.ok) {
-          const data = await tasksRes.json();
+          const data = (await tasksRes.json()) as { data: Task[] };
           setClientTasks(data.data || []);
         }
         // Refresh clients to update task count
         const clientsRes = await fetchAllClients();
         if (clientsRes.ok) {
-          const data = await clientsRes.json();
+          const data = (await clientsRes.json()) as { data: Client[] };
           setClients(data.data || []);
           setFilteredClients(data.data || []);
         }
@@ -245,7 +245,7 @@ export default function AdminClients() {
         // Refresh clients to update task count
         const clientsRes = await fetchAllClients();
         if (clientsRes.ok) {
-          const data = await clientsRes.json();
+          const data = (await clientsRes.json()) as { data: Client[] };
           setClients(data.data || []);
           setFilteredClients(data.data || []);
         }
@@ -464,9 +464,9 @@ export default function AdminClients() {
                 <div>
                   <div className="flex items-center justify-between mb-3">
                     <h4 className="font-medium">
-                      Tasks ({clientTasks.length})
+                      Daily Tasks ({clientTasks.length})
                     </h4>
-                    {clientTasks.length > 0 && (
+                    {/* {clientTasks.length > 0 && (
                       <Button
                         variant="ghost"
                         size="sm"
@@ -475,7 +475,7 @@ export default function AdminClients() {
                       >
                         Clear all
                       </Button>
-                    )}
+                    )} */}
                   </div>
                   {isLoadingTasks ? (
                     <div className="flex justify-center py-4">
@@ -498,9 +498,9 @@ export default function AdminClients() {
                                 </p>
                               )}
                               <div className="flex items-center gap-2 mt-2">
-                                <Badge variant="outline" className="text-xs">
+                                {/*<Badge variant="outline" className="text-xs">
                                   {task.status}
-                                </Badge>
+                                </Badge>*/}
                                 <span className="text-xs text-gray-500">
                                   {new Date(
                                     task.created_at,
@@ -607,7 +607,7 @@ export default function AdminClients() {
                       </Button>
                     </div>
                     <div className="flex items-center justify-between">
-                      <p className="text-xs text-gray-500">Tasks</p>
+                      <p className="text-xs text-gray-500">Daily Tasks</p>
                       <Button
                         variant="ghost"
                         size="sm"

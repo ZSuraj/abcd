@@ -17,7 +17,7 @@ export default function Clients() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen flex">
       <AppSidebar />
       <main className="w-full">
         <Navbar />

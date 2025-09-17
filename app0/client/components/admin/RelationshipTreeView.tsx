@@ -29,7 +29,13 @@ import {
   Minus,
   Edit,
 } from "lucide-react";
-import { ClientWithRelationships, Manager, Employee, Category } from "@/types";
+import {
+  ClientWithRelationships,
+  Manager,
+  Employee,
+  Category,
+  Client,
+} from "@/types";
 import {
   getRelationshipTree,
   fetchAllManagers,
@@ -38,7 +44,6 @@ import {
   updateRelationshipTree,
   replaceManager,
   replaceEmployee,
-  addEmployeeToManager,
   removeEmployee,
   addEmployee,
 } from "@/lib/api";
@@ -56,12 +61,12 @@ interface TreeNodeProps {
   onReplaceEmployee: (
     clientId: string,
     managerId: string,
-    employeeId: string
+    employeeId: string,
   ) => void;
   onRemoveEmployee: (
     clientId: string,
     managerId: string,
-    employeeId: string
+    employeeId: string,
   ) => void;
   getCategoryColor: (category: string) => string;
 }
@@ -129,9 +134,9 @@ function TreeNode({
             <div
               className="flex items-center py-2 hover:bg-gray-100 cursor-pointer"
               style={{ paddingLeft: `${indent + 40}px` }}
-              onClick={() => onToggle(manager.manager_id, "manager")}
+              onClick={() => onToggle(manager.manager_id as string, "manager")}
             >
-              {expandedManagers.has(manager.manager_id) ? (
+              {expandedManagers.has(manager.manager_id as string) ? (
                 <ChevronDown className="w-4 h-4 mr-2" />
               ) : (
                 <ChevronRight className="w-4 h-4 mr-2" />
@@ -149,7 +154,10 @@ function TreeNode({
                   size="sm"
                   onClick={(e) => {
                     e.stopPropagation();
-                    onReplaceManager(client.client_id, manager.manager_id);
+                    onReplaceManager(
+                      client.client_id,
+                      manager.manager_id as string,
+                    );
                   }}
                 >
                   <Edit className="w-3 h-3" />
@@ -184,7 +192,7 @@ function TreeNode({
                         onReplaceEmployee(
                           client.client_id,
                           manager.manager_id,
-                          employee.id || employee.employee_id
+                          employee.id || employee.employee_id,
                         )
                       }
                     >
@@ -198,7 +206,7 @@ function TreeNode({
                         onRemoveEmployee(
                           client.client_id,
                           manager.manager_id,
-                          employee.id || employee.employee_id
+                          employee.id || employee.employee_id,
                         )
                       }
                     >
@@ -247,10 +255,10 @@ export default function RelationshipTreeView({
   const [filteredClients, setFilteredClients] =
     useState<ClientWithRelationships[]>();
   const [expandedClients, setExpandedClients] = useState<Set<string>>(
-    new Set()
+    new Set(),
   );
   const [expandedManagers, setExpandedManagers] = useState<Set<string>>(
-    new Set()
+    new Set(),
   );
 
   // Dialog states
@@ -304,23 +312,6 @@ export default function RelationshipTreeView({
     setIsReplaceManagerOpen(true);
   };
 
-  const handleSaveManager = async () => {
-    if (!newManager.managerId) return;
-    console.log(newManager.managerId, selectedClientId);
-
-    const res = await addManagerToClient(
-      newManager.managerId,
-      selectedClientId
-    );
-    if (res.ok) {
-      toast.success("Manager added successfully");
-      setIsAddManagerOpen(false);
-      setNewManager({ managerId: "", category: "" });
-    } else {
-      toast.error("Failed to add manager");
-    }
-  };
-
   const handleSaveEmployee = async () => {
     if (!selectedEmployeeId || !selectedManagerId || !selectedClientId) {
       toast.error("Missing required information. Please try again.");
@@ -333,7 +324,7 @@ export default function RelationshipTreeView({
       const res = await addEmployee(
         selectedClientId,
         selectedManagerId,
-        selectedEmployeeId
+        selectedEmployeeId,
       );
 
       if (res.ok) {
@@ -344,7 +335,7 @@ export default function RelationshipTreeView({
         fetchData();
       } else {
         const errorData = await res.json().catch(() => ({}));
-        toast.error(errorData.message || "Failed to add employee");
+        toast.error("Failed to add employee");
       }
     } catch (error) {
       console.error("Error adding employee:", error);
@@ -362,7 +353,7 @@ export default function RelationshipTreeView({
     try {
       const res = await replaceManager(
         selectedClientId,
-        selectedReplacementManagerId
+        selectedReplacementManagerId,
       );
 
       if (res.ok) {
@@ -400,7 +391,7 @@ export default function RelationshipTreeView({
       const res = await updateRelationshipTree(
         selectedClientForRelationship,
         selectedManagerForRelationship,
-        selectedEmployeeIds
+        selectedEmployeeIds,
       );
 
       toast.success("Client relationship created successfully");
@@ -422,7 +413,7 @@ export default function RelationshipTreeView({
   const handleReplaceEmployee = (
     clientId: string,
     managerId: string,
-    employeeId: string
+    employeeId: string,
   ) => {
     setSelectedClientId(clientId);
     setSelectedManagerId(managerId);
@@ -440,7 +431,7 @@ export default function RelationshipTreeView({
         selectedClientId,
         selectedManagerId,
         selectedEmployeeToReplace,
-        selectedReplacementEmployeeId
+        selectedReplacementEmployeeId,
       );
 
       if (res.ok) {
@@ -463,11 +454,11 @@ export default function RelationshipTreeView({
   const handleRemoveEmployee = async (
     clientId: string,
     managerId: string,
-    employeeId: string
+    employeeId: string,
   ) => {
     if (
       !confirm(
-        "Are you sure you want to remove this employee from the relationship?"
+        "Are you sure you want to remove this employee from the relationship?",
       )
     ) {
       return;
@@ -538,7 +529,7 @@ export default function RelationshipTreeView({
     const fetchManagers = async () => {
       const response = await fetchAllManagers();
       if (response.ok) {
-        const data = await response.json();
+        const data = (await response.json()) as { data: Manager[] };
         setAllManagers(data.data || []);
       } else {
         setAllManagers([]);
@@ -548,7 +539,7 @@ export default function RelationshipTreeView({
     const fetchEmployees = async () => {
       const response = await fetchAllEmployees();
       if (response.ok) {
-        const data = await response.json();
+        const data = (await response.json()) as { data: Employee[] };
         setAllEmployees(data.data);
       }
     };
@@ -556,7 +547,7 @@ export default function RelationshipTreeView({
     const fetchClients = async () => {
       const response = await fetchAllClients();
       if (response.ok) {
-        const data = await response.json();
+        const data = (await response.json()) as { data: Client[] };
         setAllClients(data.data || []);
       }
     };
@@ -581,7 +572,7 @@ export default function RelationshipTreeView({
     const filtered = clients.filter(
       (client) =>
         client.client_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        client.client_email.toLowerCase().includes(searchTerm.toLowerCase())
+        client.client_email.toLowerCase().includes(searchTerm.toLowerCase()),
     );
 
     setFilteredClients(filtered);
@@ -654,9 +645,9 @@ export default function RelationshipTreeView({
                         (client) =>
                           client.client_id === selectedClientId &&
                           client.managers?.some(
-                            (m) => m.manager_id === manager.id
-                          )
-                      )
+                            (m) => m.manager_id === manager.id,
+                          ),
+                      ),
                   )
                   .map((manager) => (
                     <SelectItem key={manager.id} value={manager.id}>
@@ -665,7 +656,7 @@ export default function RelationshipTreeView({
                   ))}
               </SelectContent>
             </Select>
-            <Button onClick={handleSaveManager}>Add Manager</Button>
+            {/*<Button onClick={handleSaveManager}>Add Manager</Button>*/}
           </div>
         </DialogContent>
       </Dialog>
@@ -699,9 +690,9 @@ export default function RelationshipTreeView({
                           (client) =>
                             client.client_id === selectedClientId &&
                             client.managers?.some(
-                              (m) => m.manager_id === manager.id
-                            )
-                        )
+                              (m) => m.manager_id === manager.id,
+                            ),
+                        ),
                     )
                     .map((manager) => (
                       <SelectItem key={manager.id} value={manager.id}>
@@ -735,7 +726,7 @@ export default function RelationshipTreeView({
           <DialogHeader>
             <DialogTitle>Add Employee</DialogTitle>
             <p className="text-sm text-gray-600">
-              Select an employee to add to this manager's team.
+              Select an employee to add to this manager&#39;s team.
             </p>
           </DialogHeader>
           <div className="space-y-4">
@@ -758,10 +749,10 @@ export default function RelationshipTreeView({
                               manager.manager_id === selectedManagerId &&
                               manager.employees?.some(
                                 (emp) =>
-                                  (emp.id || emp.employee_id) === employee.id
-                              )
-                          )
-                        )
+                                  (emp.id || emp.employee_id) === employee.id,
+                              ),
+                          ),
+                        ),
                     )
                     .map((employee) => (
                       <SelectItem key={employee.id} value={employee.id}>
@@ -843,9 +834,9 @@ export default function RelationshipTreeView({
                             client.client_id ===
                               selectedClientForRelationship &&
                             client.managers?.some(
-                              (m) => m.manager_id === manager.id
-                            )
-                        )
+                              (m) => m.manager_id === manager.id,
+                            ),
+                        ),
                     )
                     .map((manager) => (
                       <SelectItem key={manager.id} value={manager.id}>
@@ -878,8 +869,8 @@ export default function RelationshipTreeView({
                         } else {
                           setSelectedEmployeeIds(
                             selectedEmployeeIds.filter(
-                              (id) => id !== employee.id
-                            )
+                              (id) => id !== employee.id,
+                            ),
                           );
                         }
                       }}

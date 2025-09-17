@@ -79,7 +79,7 @@ export default function ManagerTasks() {
       try {
         const res = await fetchTasks();
         if (res.ok) {
-          const data = await res.json();
+          const data = (await res.json()) as { data: Task[] };
           setTasks(data.data || []);
           setFilteredTasks(data.data || []);
         }
@@ -171,15 +171,15 @@ export default function ManagerTasks() {
         // Update the local state to reflect the change
         setTasks((prevTasks) =>
           prevTasks.map((task) =>
-            task.id === taskId ? { ...task, status: newStatus as any } : task
-          )
+            task.id === taskId ? { ...task, status: newStatus as any } : task,
+          ),
         );
 
         // Also update filtered tasks
         setFilteredTasks((prevFiltered) =>
           prevFiltered.map((task) =>
-            task.id === taskId ? { ...task, status: newStatus as any } : task
-          )
+            task.id === taskId ? { ...task, status: newStatus as any } : task,
+          ),
         );
 
         console.log(`Task ${taskId} status updated to ${newStatus}`);
@@ -515,7 +515,7 @@ export default function ManagerTasks() {
                                           <FileText className="h-4 w-4 text-gray-400" />
                                           <span className="text-sm font-medium truncate">
                                             {extractOriginalFileName(
-                                              doc.file_path
+                                              doc.file_path,
                                             )}
                                           </span>
                                         </div>
@@ -525,7 +525,7 @@ export default function ManagerTasks() {
                                         </div>
                                         <div className="text-xs text-gray-400">
                                           {new Date(
-                                            doc.created_at
+                                            doc.created_at,
                                           ).toLocaleDateString()}
                                         </div>
                                         <div className="flex gap-2">

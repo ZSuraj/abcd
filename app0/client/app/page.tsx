@@ -31,10 +31,10 @@ export default function Home() {
     const user = getCurrentUser();
     console.log(user);
     setUser(user);
-  }, []);
+  }, [router]);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen flex">
       {user?.data.user.role !== "client" && <AppSidebar />}
       <div className="w-full">
         <Navbar />

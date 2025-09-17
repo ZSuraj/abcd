@@ -29,7 +29,7 @@ export default function ManagerEmployees() {
         const employeesRes = await fetchEmployees();
         let employeesData: Employee[] = [];
         if (employeesRes.ok) {
-          const data = await employeesRes.json();
+          const data = (await employeesRes.json()) as { data: Employee[] };
           employeesData = data.data || [];
           setEmployees(employeesData);
         }
@@ -64,7 +64,7 @@ export default function ManagerEmployees() {
     const filtered = employeesWithTasks.filter(
       (employee) =>
         employee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        employee.email.toLowerCase().includes(searchTerm.toLowerCase())
+        employee.email.toLowerCase().includes(searchTerm.toLowerCase()),
     );
     setFilteredEmployees(filtered);
   }, [searchTerm, employeesWithTasks]);
