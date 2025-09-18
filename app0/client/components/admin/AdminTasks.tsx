@@ -147,8 +147,8 @@ export default function AdminTasks() {
         // Update the local state to reflect the change
         setTasks((prevTasks) =>
           prevTasks.map((task) =>
-            task.id === taskId ? { ...task, status: newStatus as any } : task,
-          ),
+            task.id === taskId ? { ...task, status: newStatus as any } : task
+          )
         );
 
         console.log(`Task ${taskId} status updated to ${newStatus}`);
@@ -257,7 +257,13 @@ export default function AdminTasks() {
       columnHelper.accessor("created_at", {
         header: "Created At",
         cell: ({ getValue }) => (
-          <span>{new Date(getValue() as string).toLocaleDateString()}</span>
+          <span>
+            {new Date(getValue()).toLocaleDateString("en-IN", {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+            })}
+          </span>
         ),
       }),
       columnHelper.display({
@@ -289,11 +295,11 @@ export default function AdminTasks() {
               {/* <DropdownMenuItem onClick={() => handleReassign(row.original.id)}>
                 Reassign
               </DropdownMenuItem> */}
-              <DropdownMenuItem
+              {/* <DropdownMenuItem
                 onClick={() => handleRaiseQuery(row.original.id)}
               >
                 Raise Query
-              </DropdownMenuItem>
+              </DropdownMenuItem> */}
               <DropdownMenuSub>
                 <DropdownMenuSubTrigger
                   disabled={updatingStatus === row.original.id}
@@ -343,7 +349,7 @@ export default function AdminTasks() {
         // size: 48,
       }),
     ],
-    [expandedRows, updatingStatus, columnHelper],
+    [expandedRows, updatingStatus, columnHelper]
   );
 
   const table = useReactTable({
@@ -533,7 +539,7 @@ export default function AdminTasks() {
                             ? null
                             : flexRender(
                                 header.column.columnDef.header,
-                                header.getContext(),
+                                header.getContext()
                               )}
                         </TableHead>
                       ))}
@@ -548,7 +554,7 @@ export default function AdminTasks() {
                           <TableCell key={cell.id}>
                             {flexRender(
                               cell.column.columnDef.cell,
-                              cell.getContext(),
+                              cell.getContext()
                             )}
                           </TableCell>
                         ))}
@@ -572,7 +578,7 @@ export default function AdminTasks() {
                                           <FileText className="h-4 w-4 text-gray-400" />
                                           <span className="text-sm font-medium truncate">
                                             {extractOriginalFileName(
-                                              doc.file_path,
+                                              doc.file_path
                                             )}
                                           </span>
                                         </div>
@@ -580,11 +586,11 @@ export default function AdminTasks() {
                                           {doc.category} •{" "}
                                           {formatFileSize(doc.size)}
                                         </div>
-                                        <div className="text-xs text-gray-400">
+                                        {/* <div className="text-xs text-gray-400">
                                           {new Date(
-                                            doc.created_at,
+                                            doc.created_at
                                           ).toLocaleDateString()}
-                                        </div>
+                                        </div> */}
                                         <div className="flex gap-2">
                                           <Button
                                             variant="outline"
@@ -602,7 +608,7 @@ export default function AdminTasks() {
                                             size="sm"
                                             onClick={() =>
                                               handleDownloadDocument(
-                                                doc.file_path,
+                                                doc.file_path
                                               )
                                             }
                                             className="flex-1"
