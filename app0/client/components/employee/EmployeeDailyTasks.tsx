@@ -1,13 +1,8 @@
 import { useEffect, useState } from "react";
-import {
-  fetchDailyTasks,
-  updateDailyTaskStatus,
-  updateTaskStatus,
-} from "@/lib/api";
+import { fetchDailyTasks, updateDailyTaskStatus } from "@/lib/api";
 import { Client, TaskStatus } from "@/types";
 import {
   Card,
-  CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
@@ -41,7 +36,7 @@ export default function EmployeeDailyTasks() {
 
   const handleTaskToggle = async (
     taskId: string,
-    currentStatus: TaskStatus,
+    currentStatus: TaskStatus
   ) => {
     const newStatus: TaskStatus = currentStatus;
 
@@ -56,9 +51,9 @@ export default function EmployeeDailyTasks() {
           prevTasks.map((client) => ({
             ...client,
             daily_tasks: client.daily_tasks?.map((task) =>
-              task.id === taskId ? { ...task, status: newStatus } : task,
+              task.id === taskId ? { ...task, status: newStatus } : task
             ),
-          })),
+          }))
         );
       } else {
         console.error("Failed to update task status");
