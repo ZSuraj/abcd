@@ -343,7 +343,7 @@ export default function AdminTasks() {
         // size: 48,
       }),
     ],
-    [expandedRows, updatingStatus, columnHelper, toggleRowExpansion],
+    [expandedRows, updatingStatus, columnHelper],
   );
 
   const table = useReactTable({

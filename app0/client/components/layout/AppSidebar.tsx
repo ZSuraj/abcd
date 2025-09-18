@@ -64,18 +64,18 @@ export function AppSidebar() {
                 },
               ],
             }),
-            ...(userRole === "admin" && {
-              items: [
-                {
-                  title: "Assigned",
-                  url: "/tasks",
-                },
-                // {
-                //   title: "Recurring",
-                //   url: "/tasks/recurring",
-                // },
-              ],
-            }),
+            // ...(userRole === "admin" && {
+            //   items: [
+            //     {
+            //       title: "Assigned",
+            //       url: "/tasks",
+            //     },
+            //     {
+            //       title: "Recurring",
+            //       url: "/tasks/recurring",
+            //     },
+            //   ],
+            // }),
           },
         ]
       : []),
