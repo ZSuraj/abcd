@@ -20,6 +20,7 @@ import {
 import { handleDownloadDocument, handleViewDocument } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
 import { useState } from "react";
+import { extractOriginalFileName } from "@/utils";
 
 export default function EmployeeClientsDocsList({
   client,
@@ -43,7 +44,7 @@ export default function EmployeeClientsDocsList({
 
         <div>
           <h2 className="text-2xl font-bold text-gray-900">
-            {client.name}'s Documents
+            {client.name}&#39;s Documents
           </h2>
           <p className="text-gray-600">{client.email}</p>
         </div>
@@ -130,7 +131,9 @@ export default function EmployeeClientsDocsList({
                     {/* {getFileIcon(document.type)} */}
                     <Paperclip className="h-5 w-5 text-blue-600" />
                     <div>
-                      <p className="font-medium">{document.key}</p>
+                      <p className="font-medium">
+                        {extractOriginalFileName(document.file_path)}
+                      </p>
                       {/* <div className="flex items-center gap-3 text-sm text-gray-500">
                         <span>{formatFileSize(document.size)}</span>
                         <span>•</span>
@@ -165,7 +168,7 @@ export default function EmployeeClientsDocsList({
                         setLoading("view");
 
                         try {
-                          await handleViewDocument(document.key);
+                          await handleViewDocument(document.file_path);
                         } finally {
                           setLoading("");
                         }

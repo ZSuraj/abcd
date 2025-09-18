@@ -1,4 +1,5 @@
 import { User } from "@/types";
+import { toast } from "sonner";
 
 export const SERVER_URL = process.env.NEXT_PUBLIC_SERVER_URL;
 
@@ -21,6 +22,10 @@ export async function login(
     method: "POST",
     body: formData,
   });
+
+  if (!response.ok) {
+    return null;
+  }
 
   const user = (await response.json()) as User;
 

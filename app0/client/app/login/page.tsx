@@ -4,20 +4,17 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { login } from "@/lib/auth";
 import { useRouter } from "next/navigation";
 import { User } from "@/types";
+import IconGrid from "@/components/layout/IconGrid";
 
-export default function Login() {
+import { AlertCircleIcon, Circle } from "lucide-react";
+
+import { cn } from "@/lib/utils";
+
+export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -42,68 +39,74 @@ export default function Login() {
       setIsLoading(false);
     }
   };
-
-  const demoCredentials = [
-    { role: "Client", email: "diana@example.com", password: "dpassword4" },
-    { role: "Employee", email: "alice@example.com", password: "password123" },
-    { role: "Admin", email: "bob@example.com", password: "admin456" },
-  ];
-
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">App0</CardTitle>
-          <CardDescription className="text-center">
-            Sign in to access your dashboard
-          </CardDescription>
-        </CardHeader>
-        <form onSubmit={handleSubmit}>
-          <CardContent className="space-y-4">
-            {error && (
-              <Alert variant="destructive">
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
-
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                disabled={isLoading}
-              />
+    <div className="grid min-h-svh lg:grid-cols-2">
+      <div className="flex flex-col gap-4 p-6 md:p-10">
+        <div className="flex justify-center gap-2 md:justify-start">
+          <a href="#" className="flex items-center gap-2 font-medium">
+            <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
+              <Circle className="size-4" />
             </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                disabled={isLoading}
-              />
-            </div>
-
-            <div className="p-1"></div>
-          </CardContent>
-
-          <CardFooter>
-            <Button
-              type="submit"
-              className="w-full cursor-pointer"
-              disabled={isLoading}
-            >
-              {isLoading ? "Logging In..." : "Log In"}
-            </Button>
-          </CardFooter>
-        </form>
-      </Card>
+            App0
+          </a>
+        </div>
+        <div className="flex flex-1 items-center justify-center">
+          <div className="w-full max-w-xs">
+            <form className={cn("flex flex-col gap-6")} onSubmit={handleSubmit}>
+              <div className="flex flex-col items-center gap-2 text-center">
+                <h1 className="text-2xl font-bold">Login to your account</h1>
+                <p className="text-muted-foreground text-sm text-balance">
+                  Enter your email below to login to your account
+                </p>
+              </div>
+              {error && (
+                <Alert variant="destructive">
+                  <AlertCircleIcon />
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
+              <div className="grid gap-6">
+                <div className="grid gap-3">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="m@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    disabled={isLoading}
+                  />
+                </div>
+                <div className="grid gap-3">
+                  <div className="flex items-center">
+                    <Label htmlFor="password">Password</Label>
+                  </div>
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="********"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    disabled={isLoading}
+                  />
+                </div>
+                <Button
+                  type="submit"
+                  className="w-full cursor-pointer"
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Logging In..." : "Log In"}
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      <div className="w-full bg-muted relative hidden lg:block">
+        <IconGrid />
+      </div>
     </div>
   );
 }

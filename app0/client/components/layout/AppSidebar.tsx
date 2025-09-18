@@ -7,8 +7,9 @@ import {
   Users,
   FolderOpen,
   MessagesSquare,
+  MessageCircle,
+  Workflow,
 } from "lucide-react";
-
 import {
   Sidebar,
   SidebarContent,
@@ -20,19 +21,23 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
 import { useEffect, useState } from "react";
+import { Noise } from "../ui/noise";
 
 export function AppSidebar() {
   const [userRole, setUserRole] = useState<
-    "client" | "employee" | "admin" | null
-  >(null);
+    "client" | "employee" | "admin" | "manager" | ""
+  >("");
 
   useEffect(() => {
     const user = getCurrentUser();
-    setUserRole(user?.data.user.type ?? null);
+    setUserRole(user?.data.user.role ?? "");
   }, []);
 
   const items = [
@@ -47,6 +52,30 @@ export function AppSidebar() {
             title: "Tasks",
             url: "/tasks",
             icon: SquareCheck,
+            ...(userRole === "employee" && {
+              items: [
+                {
+                  title: "Daily",
+                  url: "/tasks/daily",
+                },
+                {
+                  title: "Assigned",
+                  url: "/tasks",
+                },
+              ],
+            }),
+            // ...(userRole === "admin" && {
+            //   items: [
+            //     {
+            //       title: "Assigned",
+            //       url: "/tasks",
+            //     },
+            //     {
+            //       title: "Recurring",
+            //       url: "/tasks/recurring",
+            //     },
+            //   ],
+            // }),
           },
         ]
       : []),
@@ -59,6 +88,24 @@ export function AppSidebar() {
           },
         ]
       : []),
+    ...(userRole === "admin"
+      ? [
+          {
+            title: "Managers",
+            url: "/managers",
+            icon: Users,
+          },
+        ]
+      : []),
+    ...(userRole !== "employee"
+      ? [
+          {
+            title: "Employees",
+            url: "/employees",
+            icon: Users,
+          },
+        ]
+      : []),
     // Conditionally add "Documents" if user is admin
     ...(userRole !== "employee"
       ? [
@@ -66,6 +113,20 @@ export function AppSidebar() {
             title: "Documents",
             url: "/documents",
             icon: FolderOpen,
+          },
+        ]
+      : []),
+    // {
+    //   title: "Chat",
+    //   url: "/chat",
+    //   icon: MessageCircle,
+    // },
+    ...(userRole !== "employee"
+      ? [
+          {
+            title: "Relationships",
+            url: "/relationships",
+            icon: Workflow,
           },
         ]
       : []),
@@ -98,6 +159,17 @@ export function AppSidebar() {
                       <span>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
+                  <SidebarMenuSub>
+                    {item.items?.map((subItem) => (
+                      <SidebarMenuSubItem key={subItem.title}>
+                        <SidebarMenuSubButton asChild>
+                          <a href={subItem.url}>
+                            <span>{subItem.title}</span>
+                          </a>
+                        </SidebarMenuSubButton>
+                      </SidebarMenuSubItem>
+                    ))}
+                  </SidebarMenuSub>
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>

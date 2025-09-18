@@ -22,10 +22,10 @@ export function EmployeeDashboard() {
   const [tasks, setTasks] = useState<Task[]>([]);
 
   const pendingTasks = tasks?.filter(
-    (task) => task.status === "pending"
+    (task) => task.status === "pending",
   ).length;
   const inProgressTasks = tasks?.filter(
-    (task) => task.status === "in-progress"
+    (task) => task.status === "in-progress",
   ).length;
 
   const totalTasks = tasks?.length;
@@ -66,7 +66,7 @@ export function EmployeeDashboard() {
               <div>
                 <p className="text-sm text-gray-600">In Progress</p>
                 <p className="text-2xl font-bold text-blue-600">
-                  {tasks.filter((t) => t?.status === "in-progress").length}
+                  {tasks?.filter((t) => t?.status === "in-progress").length}
                 </p>
               </div>
               <div className="h-8 w-8 bg-blue-100 rounded-full flex items-center justify-center">
@@ -82,7 +82,7 @@ export function EmployeeDashboard() {
               <div>
                 <p className="text-sm text-gray-600">In Review</p>
                 <p className="text-2xl font-bold text-orange-600">
-                  {tasks.filter((t) => t?.status === "in-review").length}
+                  {tasks?.filter((t) => t?.status === "in-review").length}
                 </p>
               </div>
               <div className="h-8 w-8 bg-orange-100 rounded-full flex items-center justify-center">
@@ -98,7 +98,7 @@ export function EmployeeDashboard() {
               <div>
                 <p className="text-sm text-gray-600">Completed</p>
                 <p className="text-2xl font-bold text-green-600">
-                  {tasks.filter((t) => t?.status === "completed").length}
+                  {tasks?.filter((t) => t?.status === "completed").length}
                 </p>
               </div>
               <div className="h-8 w-8 bg-green-100 rounded-full flex items-center justify-center">
@@ -119,16 +119,16 @@ export function EmployeeDashboard() {
           </CardHeader>
           <CardContent className="space-y-4">
             {tasks
-              .sort(
+              ?.sort(
                 (a, b) =>
                   new Date(b.created_at).getTime() -
-                  new Date(a.created_at).getTime()
+                  new Date(a.created_at).getTime(),
               )
               .slice(0, 3)
               .map((task) => (
                 <div
                   key={task?.id}
-                  className="flex items-start justify-between rounded-md border p-4"
+                  className="flex items-start justify-between rounded-md border p-4 shadow-sm transition-all"
                 >
                   <div>
                     <p className="font-medium text-gray-900">{task?.title}</p>
@@ -144,10 +144,10 @@ export function EmployeeDashboard() {
                         task?.status === "pending"
                           ? "bg-yellow-100 text-yellow-800 border-yellow-200"
                           : task.status === "in-progress"
-                          ? "bg-blue-100 text-blue-800 border-blue-200"
-                          : task.status === "in-review"
-                          ? "bg-orange-100 text-orange-800 border-orange-200"
-                          : "bg-green-100 text-green-800 border-green-200"
+                            ? "bg-blue-100 text-blue-800 border-blue-200"
+                            : task.status === "in-review"
+                              ? "bg-orange-100 text-orange-800 border-orange-200"
+                              : "bg-green-100 text-green-800 border-green-200"
                       }
                     `}
                   >
@@ -171,13 +171,13 @@ export function EmployeeDashboard() {
               .sort(
                 (a, b) =>
                   new Date(a?.due_date).getTime() -
-                  new Date(b?.due_date).getTime()
+                  new Date(b?.due_date).getTime(),
               )
               .slice(0, 3)
               .map((task) => (
                 <div
                   key={task?.id}
-                  className="flex items-center justify-between rounded-md border p-4 shadow-sm transition-all bg-white"
+                  className="flex items-center justify-between rounded-md border p-4 shadow-sm transition-all"
                 >
                   <div className="flex flex-col">
                     <span className="font-medium text-gray-900">

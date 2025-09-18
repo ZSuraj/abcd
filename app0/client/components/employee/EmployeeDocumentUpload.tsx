@@ -30,11 +30,12 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import {
+  getClientCategories,
   getEmployeesClients,
   handleEmployeeUploadDocuments,
   handleUploadDocuments,
 } from "@/lib/api";
-import { Client, User } from "@/types";
+import { Category, Client, User } from "@/types";
 import { useRouter } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { toast } from "sonner";
@@ -75,11 +76,11 @@ export function EmployeeDocumentUpload({ user }: { user: User }) {
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showCategoryDialog, setShowCategoryDialog] = useState(false);
-  const [selectedCategory, setSelectedCategory] =
-    useState<DocumentCategory>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
 
   const [clients, setClients] = useState<any[]>([]);
   const [selectedClientId, setSelectedClientId] = useState<string>("");
+  const [categories, setCategories] = useState<Category[]>();
 
   useEffect(() => {
     getEmployeesClients().then((data) => {
@@ -89,7 +90,16 @@ export function EmployeeDocumentUpload({ user }: { user: User }) {
     });
   }, []);
 
+  useEffect(() => {
+    getClientCategories(selectedClientId).then((data) => {
+      data.json().then((data: any) => {
+        setCategories(data.data as Category[]);
+      });
+    });
+  }, [selectedClientId]);
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setShowCategoryDialog(true);
     const files = e.target.files;
     if (files) {
       setSelectedFiles([...selectedFiles, ...Array.from(files)]);
@@ -150,10 +160,9 @@ export function EmployeeDocumentUpload({ user }: { user: User }) {
 
     // Call the upload handler
     const res = (await handleEmployeeUploadDocuments(
-      user.data.user.id,
       selectedFiles,
       selectedCategory as string,
-      selectedClientId as string
+      selectedClientId as string,
     )) as Response;
 
     if (!res.ok) {
@@ -170,7 +179,7 @@ export function EmployeeDocumentUpload({ user }: { user: User }) {
 
       // Reset form
       const fileInput = document.getElementById(
-        "file-upload"
+        "file-upload",
       ) as HTMLInputElement;
       if (fileInput) fileInput.value = "";
 
@@ -225,7 +234,7 @@ export function EmployeeDocumentUpload({ user }: { user: User }) {
           </Select>
         </div>
       </div>
-      {selectedFiles.length < 1 && (
+      {selectedFiles.length < 1 && selectedClientId && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -308,20 +317,20 @@ export function EmployeeDocumentUpload({ user }: { user: User }) {
                 </DialogDescription>
               </DialogHeader>
               <div className="grid grid-cols-1 gap-4 py-4">
-                {categories.map((category) => (
+                {categories?.map((category) => (
                   <Button
-                    key={category}
+                    key={category.id}
                     variant={
-                      selectedCategory === category ? "default" : "outline"
+                      selectedCategory === category.name ? "default" : "outline"
                     }
-                    className="w-full"
+                    className="w-full capitalize"
                     onClick={() => {
-                      setSelectedCategory(category);
+                      setSelectedCategory(category.name);
                       setShowCategoryDialog(false);
                       fileInputRef.current?.click();
                     }}
                   >
-                    {category}
+                    {category.name}
                   </Button>
                 ))}
               </div>
@@ -377,7 +386,7 @@ export function EmployeeDocumentUpload({ user }: { user: User }) {
           </p>
         </div>
       )}
-      {user?.data.user.type === "client" && (
+      {user?.data.user.role === "client" && (
         <div className="w-full flex items-center justify-center">
           <Button
             variant="link"

@@ -10,7 +10,8 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function timeAgo(timestamp: string) {
-  const utcDate = new Date(timestamp.replace(" ", "T") + "Z"); // Adds the Z for UTC
+  // const utcDate = new Date(timestamp.replace(" ", "T") + "Z"); // Adds the Z for UTC
+  const utcDate = new Date(timestamp);
   const now = new Date(); // Local time (IST in your case)
 
   const seconds = Math.floor((now.getTime() - utcDate.getTime()) / 1000);
@@ -68,5 +69,12 @@ export function getStatusColor(status: Task["status"]) {
       return "bg-green-100 text-green-800";
     default:
       return "bg-gray-100 text-gray-800";
+  }
+}
+
+export function extractOriginalFileName(key: string) {
+  const fileNameWithTimestamp = key.split("/").pop();
+  if (fileNameWithTimestamp) {
+    return fileNameWithTimestamp.split("-").slice(1).join("-");
   }
 }
