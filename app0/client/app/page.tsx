@@ -12,13 +12,6 @@ import ManagerDashboard from "@/components/manager/ManagerDashboard";
 import AdminDashboard from "@/components/admin/AdminDashboard";
 import { createClient } from "@supabase/supabase-js";
 
-const SUPABASE_URL = "https://qinrqkocqfuhmefzlfva.supabase.co";
-const SUPABASE_ANON_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFpbnJxa29jcWZ1aG1lZnpsZnZhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY0NjAxNzEsImV4cCI6MjA3MjAzNjE3MX0.LqxjYgns8nq-s4mJj8W-CiFN16m09lhi5y3QWP7GExc";
-
-// Initialize Supabase client
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
 export default function Home() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>();
