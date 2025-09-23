@@ -60,17 +60,27 @@ export function formatFileSize(bytes: number): string {
 export function getStatusColor(status: Task["status"]) {
   switch (status) {
     case "pending":
-      return "bg-gray-100 text-gray-800";
+      return "bg-gray-100 text-gray-800 border border-gray-200";
     case "in-progress":
-      return "bg-blue-100 text-blue-800";
+      return "bg-blue-100 text-blue-800 border border-blue-200";
     case "in-review":
-      return "bg-orange-100 text-orange-800";
+      return "bg-orange-100 text-orange-800 border border-orange-200";
     case "completed":
-      return "bg-green-100 text-green-800";
+      return "bg-green-100 text-green-800 border border-green-200";
     default:
-      return "bg-gray-100 text-gray-800";
+      return "bg-gray-100 text-gray-800 border border-gray-200";
   }
 }
+
+const getPriorityColor = (priority: Task["priority"]) => {
+  const colors = {
+    critical: "bg-red-100 text-red-800 border-red-200",
+    high: "bg-orange-100 text-orange-800 border-orange-200",
+    medium: "bg-blue-100 text-blue-800 border-blue-200",
+    low: "bg-green-100 text-green-800 border-green-200",
+  };
+  return colors[priority] || "bg-gray-100 text-gray-800 border-gray-200";
+};
 
 export function extractOriginalFileName(key: string) {
   const fileNameWithTimestamp = key.split("/").pop();
