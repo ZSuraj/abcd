@@ -12,6 +12,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -58,6 +59,10 @@ export default function AdminClients() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [categoryName, setCategoryName] = useState("");
   const [isCreatingCategory, setIsCreatingCategory] = useState(false);
+  const [categoryStep, setCategoryStep] = useState<"name" | "clients">("name");
+  const [selectedClientsForCategory, setSelectedClientsForCategory] = useState<
+    string[]
+  >([]);
   const [allCategories, setAllCategories] = useState<Category[]>([]);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [clientCategories, setClientCategories] = useState<Category[]>([]);
@@ -106,34 +111,84 @@ export default function AdminClients() {
     const filtered = clients.filter(
       (client) =>
         client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        client.email.toLowerCase().includes(searchTerm.toLowerCase()),
+        client.email.toLowerCase().includes(searchTerm.toLowerCase())
     );
     setFilteredClients(filtered);
   }, [searchTerm, clients]);
 
   const handleCreateCategory = async () => {
-    if (!categoryName.trim()) return;
+    if (categoryStep === "name") {
+      if (!categoryName.trim()) return;
+      setCategoryStep("clients");
+      return;
+    }
+
+    // Create category and assign clients
     setIsCreatingCategory(true);
     try {
-      const res = await createCategory(categoryName);
+      const res = await createCategory(
+        categoryName,
+        selectedClientsForCategory
+      );
       if (res.ok) {
+        const categoryData = (await res.json()) as { data: Category };
+        const newCategoryId = categoryData.data.id;
+
+        // Assign selected clients to the new category
+        // if (selectedClientsForCategory.length > 0) {
+        //   const assignPromises = selectedClientsForCategory.map((clientId) =>
+        //     saveCategories(clientId, [newCategoryId])
+        //   );
+        //   await Promise.all(assignPromises);
+        // }
+
         toast.success("Category created successfully!");
         setCategoryName("");
+        setSelectedClientsForCategory([]);
+        setCategoryStep("name");
         setIsDialogOpen(false);
-        // Refresh categories
+        // Refresh categories and clients
         const categoriesRes = await getAllCategories();
         if (categoriesRes.ok) {
           const data = (await categoriesRes.json()) as { data: Category[] };
           setAllCategories(data.data || []);
         }
+        const clientsRes = await fetchAllClients();
+        if (clientsRes.ok) {
+          const data = (await clientsRes.json()) as { data: Client[] };
+          setClients(data.data || []);
+          setFilteredClients(data.data || []);
+        }
       } else {
-        toast.error("Failed to create category.");
+        const data = (await res.json()) as { error?: string };
+        toast.error(data.error || "Failed to create category.");
       }
     } catch (error) {
       console.error(error);
       toast.error("An error occurred while creating the category.");
     } finally {
       setIsCreatingCategory(false);
+    }
+  };
+
+  const handleBackToNameStep = () => {
+    setCategoryStep("name");
+  };
+
+  const handleDialogClose = (open: boolean) => {
+    setIsDialogOpen(open);
+    if (!open) {
+      setCategoryName("");
+      setSelectedClientsForCategory([]);
+      setCategoryStep("name");
+    }
+  };
+
+  const handleSelectAllClients = (checked: boolean | 'indeterminate') => {
+    if (checked === true) {
+      setSelectedClientsForCategory(clients.map(client => client.id));
+    } else {
+      setSelectedClientsForCategory([]);
     }
   };
 
@@ -291,39 +346,117 @@ export default function AdminClients() {
         <h2 className="text-2xl font-bold">Clients</h2>
         <div className="flex gap-2">
           <AddClientButton />
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <Dialog open={isDialogOpen} onOpenChange={handleDialogClose}>
             <DialogTrigger asChild>
-              <Button variant="outline" size="sm">
+              <Button variant="outline">
                 <Plus className="h-4 w-4" />
                 Add Category
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent
+              className={categoryStep === "clients" ? "max-w-2xl" : ""}
+            >
               <DialogHeader>
-                <DialogTitle>Add New Category</DialogTitle>
+                <DialogTitle>
+                  {categoryStep === "name"
+                    ? "Add New Category"
+                    : "Select Clients"}
+                </DialogTitle>
                 <DialogDescription>
-                  Enter the name for the new category.
+                  {categoryStep === "name"
+                    ? "Enter the name for the new category."
+                    : "Select the clients to assign to this category."}
                 </DialogDescription>
               </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <Input
-                  placeholder="Category name"
-                  value={categoryName}
-                  onChange={(e) => setCategoryName(e.target.value)}
-                />
-              </div>
+              {categoryStep === "name" ? (
+                <div className="grid gap-4 py-4">
+                  <Input
+                    placeholder="Category name"
+                    value={categoryName}
+                    onChange={(e) => setCategoryName(e.target.value)}
+                  />
+                </div>
+                ) : (
+                 <div className="py-4">
+                   <div className="flex items-center space-x-2 mb-4 pb-2 border-b">
+                     <Checkbox
+                       id="select-all-clients"
+                       checked={selectedClientsForCategory.length === clients.length && clients.length > 0}
+                       onCheckedChange={handleSelectAllClients}
+                     />
+                     <label
+                       htmlFor="select-all-clients"
+                       className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                     >
+                       Select All Clients ({clients.length})
+                     </label>
+                   </div>
+                   <div className="max-h-96 overflow-y-auto space-y-2">
+                    {clients.map((client) => (
+                      <div
+                        key={client.id}
+                        className="flex items-center space-x-2"
+                      >
+                        <Checkbox
+                          id={client.id}
+                          checked={selectedClientsForCategory.includes(
+                            client.id
+                          )}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setSelectedClientsForCategory([
+                                ...selectedClientsForCategory,
+                                client.id,
+                              ]);
+                            } else {
+                              setSelectedClientsForCategory(
+                                selectedClientsForCategory.filter(
+                                  (id) => id !== client.id
+                                )
+                              );
+                            }
+                          }}
+                        />
+                        <label
+                          htmlFor={client.id}
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        >
+                          {client.name} ({client.email})
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                  {selectedClientsForCategory.length > 0 && (
+                    <div className="mt-4 text-sm text-gray-600">
+                      {selectedClientsForCategory.length} client
+                      {selectedClientsForCategory.length !== 1 ? "s" : ""}{" "}
+                      selected
+                    </div>
+                  )}
+                </div>
+              )}
               <DialogFooter>
+                {categoryStep === "clients" && (
+                  <Button variant="outline" onClick={handleBackToNameStep}>
+                    Back
+                  </Button>
+                )}
                 <Button
                   onClick={handleCreateCategory}
-                  disabled={isCreatingCategory}
+                  disabled={
+                    isCreatingCategory ||
+                    (categoryStep === "name" && !categoryName.trim())
+                  }
                 >
                   {isCreatingCategory ? (
                     <>
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                       Creating...
                     </>
+                  ) : categoryStep === "name" ? (
+                    "Next"
                   ) : (
-                    "Create"
+                    "Create Category"
                   )}
                 </Button>
               </DialogFooter>
@@ -364,7 +497,7 @@ export default function AdminClients() {
                             className="h-4 w-4 p-0 ml-1 hover:bg-red-100"
                             onClick={() => {
                               const newCategories = clientCategories.filter(
-                                (c) => c.id !== category.id,
+                                (c) => c.id !== category.id
                               );
                               setClientCategories(newCategories);
                             }}
@@ -377,7 +510,7 @@ export default function AdminClients() {
                     <Select
                       onValueChange={(value) => {
                         const category = allCategories.find(
-                          (c) => c.id === value,
+                          (c) => c.id === value
                         );
                         if (
                           category &&
@@ -395,8 +528,8 @@ export default function AdminClients() {
                           .filter(
                             (category) =>
                               !clientCategories.find(
-                                (c) => c.id === category.id,
-                              ),
+                                (c) => c.id === category.id
+                              )
                           )
                           .map((category) => (
                             <SelectItem key={category.id} value={category.id}>
@@ -503,7 +636,7 @@ export default function AdminClients() {
                                 </Badge>*/}
                                 <span className="text-xs text-gray-500">
                                   {new Date(
-                                    task.created_at,
+                                    task.created_at
                                   ).toLocaleDateString()}
                                 </span>
                               </div>

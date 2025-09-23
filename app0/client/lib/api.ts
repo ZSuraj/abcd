@@ -57,7 +57,7 @@ export async function fetchTasks() {
   return response;
 }
 
-export async function updateTaskStatus(taskId: string, status: TaskStatus) {
+export async function updateTaskStatus(taskId: string, status: TaskStatus, remarks?: string) {
   // const task = tasks.find((t) => t.id === taskId);
   if (!taskId) return;
 
@@ -71,6 +71,7 @@ export async function updateTaskStatus(taskId: string, status: TaskStatus) {
     body: JSON.stringify({
       taskId,
       status,
+      remarks,
     }),
   });
 
@@ -111,7 +112,7 @@ export async function fetchAllClients() {
 export async function handleReassignEmployee(
   clientId: string,
   newEmployeeId: string,
-  oldEmployeeId: string,
+  oldEmployeeId: string
 ) {
   const user = JSON.parse(localStorage.getItem("currentUser") || "{}");
 
@@ -135,7 +136,7 @@ export const handleUploadDocuments = async (
   clientId: string,
   files: File[],
   selectedCategory: string,
-  selectedClient: number,
+  selectedClient: number
 ) => {
   console.log(111);
 
@@ -195,7 +196,7 @@ export async function getEmployeesClientDocs(clientId: string) {
 export const handleEmployeeUploadDocuments = async (
   files: File[],
   selectedCategory: string,
-  selectedClientId: string,
+  selectedClientId: string
 ) => {
   console.log(111);
 
@@ -224,7 +225,7 @@ export const handleEmployeeUploadDocuments = async (
 
 export const handleClientUploadDocuments = async (
   files: File[],
-  selectedCategory: string,
+  selectedCategory: string
 ) => {
   const formData = new FormData();
   files.forEach((file) => {
@@ -321,7 +322,7 @@ export async function getRelationshipTree() {
 export async function updateRelationshipTree(
   clientId: string,
   managerId: string,
-  employeeIds: string[],
+  employeeIds: string[]
 ) {
   const user = await getCurrentUser();
   const response = await fetch(`${SERVER_URL}/create-client-relationship`, {
@@ -352,7 +353,7 @@ export async function replaceEmployee(
   clientId: string,
   managerId: string,
   oldEmployeeId: string,
-  newEmployeeId: string,
+  newEmployeeId: string
 ) {
   const user = await getCurrentUser();
   const response = await fetch(`${SERVER_URL}/replace-employee`, {
@@ -374,7 +375,7 @@ export async function replaceEmployee(
 export async function removeEmployee(
   clientId: string,
   managerId: string,
-  employeeId: string,
+  employeeId: string
 ) {
   console.log(clientId, managerId, employeeId);
 
@@ -397,7 +398,7 @@ export async function removeEmployee(
 export async function addEmployee(
   clientId: string,
   managerId: string,
-  employeeId: string,
+  employeeId: string
 ) {
   const user = await getCurrentUser();
   const response = await fetch(`${SERVER_URL}/add-employee`, {
@@ -504,7 +505,7 @@ export async function saveCategories(clientId: string, categoryIds: string[]) {
   return response;
 }
 
-export async function createCategory(name: string) {
+export async function createCategory(name: string, clientIds: string[]) {
   const user = getCurrentUser();
   const response = await fetch(`${SERVER_URL}/create-category`, {
     method: "POST",
@@ -513,6 +514,7 @@ export async function createCategory(name: string) {
     },
     body: JSON.stringify({
       name,
+      clientIds,
     }),
   });
   return response;
@@ -629,7 +631,7 @@ export async function fetchDailyTasks() {
 
 export async function updateDailyTaskStatus(
   taskId: string,
-  status: TaskStatus,
+  status: TaskStatus
 ) {
   // const task = tasks.find((t) => t.id === taskId);
   if (!taskId) return;

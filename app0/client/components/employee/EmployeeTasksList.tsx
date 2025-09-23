@@ -47,18 +47,23 @@ import { useEffect, useState } from "react";
 export default function EmployeeTasksList() {
   const [user, setUser] = useState<User | null>(null);
   const [statusFilter, setStatusFilter] = useState<Task["status"] | "all">(
-    "all",
+    "all"
   );
   const [categoryFilter, setCategoryFilter] = useState<string | "all">("all");
   const [tasks, setTasks] = useState<Task[]>([]);
   const [filteredTasks, setFilteredTasks] = useState<Task[]>([]);
   const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest");
   const [selectedTaskForQuery, setSelectedTaskForQuery] = useState<Task | null>(
-    null,
+    null
   );
   const [querySubject, setQuerySubject] = useState("");
   const [queryMessage, setQueryMessage] = useState("");
   const [isQueryDialogOpen, setIsQueryDialogOpen] = useState(false);
+  const [isRemarksDialogOpen, setIsRemarksDialogOpen] = useState(false);
+  const [selectedTaskForRemarks, setSelectedTaskForRemarks] =
+    useState<Task | null>(null);
+  const [remarks, setRemarks] = useState("");
+  const [newStatus, setNewStatus] = useState<Task["status"] | null>(null);
 
   useEffect(() => {
     setUser(getCurrentUser());
@@ -110,8 +115,16 @@ export default function EmployeeTasksList() {
   // console.log("selctedStatus", statusFilter);
   //   console.log(tasks);
 
-  async function handleUpdateTask(taskId: string, status: Task["status"]) {
-    const updateResponse = (await updateTaskStatus(taskId, status)) as Response;
+  async function handleUpdateTask(
+    taskId: string,
+    status: Task["status"],
+    remarks?: string
+  ) {
+    const updateResponse = (await updateTaskStatus(
+      taskId,
+      status,
+      remarks
+    )) as Response;
     if (!updateResponse.ok) {
       console.log("Error updating task");
       return;
@@ -141,6 +154,21 @@ export default function EmployeeTasksList() {
 
     // You can add a toast notification here if needed
     alert("Query raised successfully!");
+  };
+
+  const handleSubmitRemarks = async () => {
+    if (!selectedTaskForRemarks || !newStatus || !remarks.trim()) return;
+
+    await handleUpdateTask(
+      selectedTaskForRemarks.id,
+      newStatus,
+      remarks.replace(/\n/g, "\n")
+    );
+
+    setIsRemarksDialogOpen(false);
+    setSelectedTaskForRemarks(null);
+    setNewStatus(null);
+    setRemarks("");
   };
 
   const openQueryDialog = (task: Task) => {
@@ -235,6 +263,11 @@ export default function EmployeeTasksList() {
                     )}
                   </CardTitle>
                   <CardDescription>{task?.description}</CardDescription>
+                  {task?.remarks && (
+                    <div className="text-sm text-gray-600 mt-2">
+                      <strong>Remarks:</strong> {task.remarks}
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex items-center gap-2">
@@ -281,10 +314,12 @@ export default function EmployeeTasksList() {
                     </div>
                   )}
 
-                  <div className="flex items-center gap-1">
-                    <Clock className="h-4 w-4" />
-                    <span>Updated {timeAgo(task?.updated_at)}</span>
-                  </div>
+                  {task?.updated_at && (
+                    <div className="flex items-center gap-1">
+                      <Clock className="h-4 w-4" />
+                      <span>Updated {timeAgo(task?.updated_at)}</span>
+                    </div>
+                  )}
 
                   <div className="flex items-center gap-1">
                     {task?.priority === "high" ? (
@@ -299,8 +334,8 @@ export default function EmployeeTasksList() {
                       {task?.priority === "high"
                         ? "High"
                         : task?.priority === "medium"
-                          ? "Medium"
-                          : "Low"}
+                        ? "Medium"
+                        : "Low"}
                     </span>
                   </div>
                 </div>
@@ -309,9 +344,18 @@ export default function EmployeeTasksList() {
                   <Select
                     value={task?.status}
                     onValueChange={(value) => {
-                      // TODO: Implement task status update
-                      //   console.log("Update task status:", task?.id, value);
-                      handleUpdateTask(task?.id, value as Task["status"]);
+                      const newStatus = value as Task["status"];
+                      if (
+                        newStatus === "partially-completed" ||
+                        newStatus === "in-review"
+                      ) {
+                        setSelectedTaskForRemarks(task);
+                        setNewStatus(newStatus);
+                        setRemarks("");
+                        setIsRemarksDialogOpen(true);
+                      } else {
+                        handleUpdateTask(task?.id, newStatus);
+                      }
                     }}
                   >
                     <SelectTrigger className="w-32">
@@ -320,12 +364,26 @@ export default function EmployeeTasksList() {
                     <SelectContent>
                       <SelectItem value="pending">Pending</SelectItem>
                       <SelectItem value="in-progress">In Progress</SelectItem>
+                      <SelectItem value="partially-completed">
+                        Partially Completed
+                      </SelectItem>
                       <SelectItem value="in-review">In Review</SelectItem>
                       <SelectItem value="completed">Completed</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </div>
+              {task?.remarks && (
+                <div className="mt-4 space-y-1 text-sm text-gray-700">
+                  <div className="font-semibold text-gray-800">Remarks:</div>
+                  <div
+                    className="text-gray-700"
+                    dangerouslySetInnerHTML={{
+                      __html: task?.remarks.replace(/\n/g, "<br>\n"),
+                    }}
+                  />
+                </div>
+              )}
               <div className="flex justify-between items-end">
                 {task?.documents && task?.documents.length > 0 && (
                   <div className="mt-4 space-y-1 text-sm text-gray-700">
@@ -365,7 +423,7 @@ export default function EmployeeTasksList() {
                               </Button>
                             </div>
                           </li>
-                        ),
+                        )
                       )}
                     </ul>
                   </div>
@@ -376,7 +434,7 @@ export default function EmployeeTasksList() {
                   }
                   onOpenChange={setIsQueryDialogOpen}
                 >
-                  <DialogTrigger asChild>
+                  {/* <DialogTrigger asChild>
                     <Button
                       variant="ghost"
                       size="sm"
@@ -386,7 +444,7 @@ export default function EmployeeTasksList() {
                       <MessageSquare className="h-4 w-4" />
                       Raise Query
                     </Button>
-                  </DialogTrigger>
+                  </DialogTrigger> */}
                   <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader>
                       <DialogTitle>Raise Query for Task</DialogTitle>
@@ -424,6 +482,47 @@ export default function EmployeeTasksList() {
                     <DialogFooter>
                       <Button type="submit" onClick={handleRaiseQuery}>
                         Raise Query
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+                <Dialog
+                  open={
+                    isRemarksDialogOpen &&
+                    selectedTaskForRemarks?.id === task?.id
+                  }
+                  onOpenChange={setIsRemarksDialogOpen}
+                >
+                  <DialogContent className="max-w-[425px] lg:max-w-[600px]">
+                    <DialogHeader>
+                      <DialogTitle>Add Remarks</DialogTitle>
+                      <DialogDescription>
+                        Please provide remarks for changing the status of &#34;
+                        {selectedTaskForRemarks?.title}&#34; to{" "}
+                        {newStatus?.replace("-", " ")}.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                      <div className="">
+                        {/* <Label htmlFor="remarks" className="text-right pt-2">
+                          Remarks
+                        </Label> */}
+                        <textarea
+                          id="remarks"
+                          value={remarks}
+                          onChange={(e) => setRemarks(e.target.value)}
+                          className="w-full min-h-[150px] p-2 border rounded-md resize-none"
+                          placeholder="Enter your remarks..."
+                        />
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button
+                        type="submit"
+                        onClick={handleSubmitRemarks}
+                        disabled={!remarks}
+                      >
+                        Submit
                       </Button>
                     </DialogFooter>
                   </DialogContent>

@@ -1,6 +1,6 @@
 export type UserRole = "client" | "employee" | "admin" | "manager";
 
-export type TaskStatus = "pending" | "in-progress" | "in-review" | "completed";
+export type TaskStatus = "pending" | "in-progress" | "partially-completed" | "in-review" | "completed";
 
 export interface User {
   access_token: string;
@@ -51,6 +51,7 @@ export interface Document {
 export interface Task {
   id: string;
   title: string;
+  log_id: string;
   description: string;
   status: TaskStatus;
   created_at: string;
@@ -61,6 +62,7 @@ export interface Task {
   client: Client;
   documents: Document[];
   assigned_employees: Employee[];
+  remarks?: string;
 }
 
 export interface Notification {

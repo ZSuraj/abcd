@@ -32,8 +32,6 @@ export default function EmployeeDailyTasks() {
     getTasks();
   }, []);
 
-  console.log(dailyTasks);
-
   const handleTaskToggle = async (
     taskId: string,
     currentStatus: TaskStatus
@@ -88,7 +86,7 @@ export default function EmployeeDailyTasks() {
             <div className="grid gap-4">
               {(client?.daily_tasks ?? []).map((task) => (
                 <Card
-                  key={task.id}
+                  key={task.log_id}
                   className={task.status === "completed" ? "opacity-75" : ""}
                 >
                   <CardHeader>
