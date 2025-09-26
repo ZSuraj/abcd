@@ -1,6 +1,11 @@
 export type UserRole = "client" | "employee" | "admin" | "manager";
 
-export type TaskStatus = "pending" | "in-progress" | "partially-completed" | "in-review" | "completed";
+export type TaskStatus =
+  | "pending"
+  | "in-progress"
+  | "partially-completed"
+  | "in-review"
+  | "completed";
 
 export interface User {
   access_token: string;
@@ -164,4 +169,11 @@ export interface EmployeeWithRelationships extends Employee {
     managerName: string;
     category: string;
   }>;
+}
+
+export interface AssignablePerson {
+  id: string;
+  name: string;
+  email: string;
+  role: "employee" | "client" | "manager";
 }

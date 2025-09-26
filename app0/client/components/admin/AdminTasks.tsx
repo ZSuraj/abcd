@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import {
   Card,
   CardContent,
@@ -27,7 +27,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { fetchAllTasks, updateTaskStatus } from "@/lib/api";
-import { Task } from "@/types";
+import { AssignablePerson, Task } from "@/types";
+import CreateTaskForm from "@/components/CreateTaskForm";
 import {
   Search,
   User,
@@ -66,6 +67,12 @@ import {
   ColumnFiltersState,
 } from "@tanstack/react-table";
 import { extractOriginalFileName, formatFileSize } from "@/utils";
+import {
+  fetchAllEmployees,
+  fetchAllClients,
+  fetchAllManagers,
+} from "@/lib/api";
+import { Employee, Client, Manager } from "@/types";
 
 export default function AdminTasks() {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -80,7 +87,26 @@ export default function AdminTasks() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
 
+  // Assignable people for create task form
+  const [assignablePeople, setAssignablePeople] = useState<AssignablePerson[]>(
+    []
+  );
+  const [clients, setClients] = useState<Client[]>([]);
+
   const columnHelper = createColumnHelper<Task>();
+
+  const toggleRowExpansion = useCallback(
+    (taskId: string) => {
+      const newExpandedRows = new Set(expandedRows);
+      if (newExpandedRows.has(taskId)) {
+        newExpandedRows.delete(taskId);
+      } else {
+        newExpandedRows.add(taskId);
+      }
+      setExpandedRows(newExpandedRows);
+    },
+    [expandedRows]
+  );
 
   useEffect(() => {
     async function getTasks() {
@@ -97,6 +123,69 @@ export default function AdminTasks() {
       }
     }
     getTasks();
+  }, []);
+
+  useEffect(() => {
+    const fetchAssignablePeople = async () => {
+      try {
+        const [employeesRes, clientsRes, managersRes] = await Promise.all([
+          fetchAllEmployees(),
+          fetchAllClients(),
+          fetchAllManagers(),
+        ]);
+
+        const allPeople: AssignablePerson[] = [];
+
+        if (employeesRes.ok) {
+          const employeesData = (await employeesRes.json()) as {
+            data: Employee[];
+          };
+          const employees = employeesData.data || [];
+          allPeople.push(
+            ...employees.map((emp) => ({
+              id: emp.id,
+              name: emp.name,
+              email: emp.email,
+              role: "employee" as const,
+            }))
+          );
+        }
+
+        if (clientsRes.ok) {
+          const clientsData = (await clientsRes.json()) as { data: Client[] };
+          const clients = clientsData.data || [];
+          setClients(clients);
+          allPeople.push(
+            ...clients.map((client) => ({
+              id: client.id,
+              name: client.name,
+              email: client.email,
+              role: "client" as const,
+            }))
+          );
+        }
+
+        if (managersRes.ok) {
+          const managersData = (await managersRes.json()) as {
+            data: Manager[];
+          };
+          const managers = managersData.data || [];
+          allPeople.push(
+            ...managers.map((manager) => ({
+              id: manager.id,
+              name: manager.name,
+              email: manager.email,
+              role: "manager" as const,
+            }))
+          );
+        }
+
+        setAssignablePeople(allPeople);
+      } catch (error) {
+        console.error("Error fetching assignable people:", error);
+      }
+    };
+    fetchAssignablePeople();
   }, []);
 
   const getStatusIcon = (status: string) => {
@@ -135,6 +224,22 @@ export default function AdminTasks() {
   const handleRaiseQuery = (taskId: string) => {
     // TODO: Implement raise query functionality
     console.log("Raise query for task:", taskId);
+  };
+
+  const handleTaskCreated = () => {
+    // Refresh the tasks list
+    async function refreshTasks() {
+      try {
+        const res = await fetchAllTasks();
+        if (res.ok) {
+          const data = (await res.json()) as { data?: Task[] };
+          setTasks(data.data || []);
+        }
+      } catch (error) {
+        console.error("Error refreshing tasks:", error);
+      }
+    }
+    refreshTasks();
   };
 
   const handleUpdateStatus = async (taskId: string, newStatus: string) => {
@@ -206,13 +311,13 @@ export default function AdminTasks() {
           <div className="flex items-center gap-2">
             <User className="h-4 w-4 text-gray-400" />
             <span className="text-sm truncate max-w-[120px]">
-              {row.original.client.name}
+              {row.original.client?.name || "N/A"}
             </span>
           </div>
         ),
       }),
       columnHelper.accessor("assigned_employees", {
-        header: "Employees",
+        header: "Assigned to",
         cell: ({ row }) => (
           <div className="flex flex-wrap gap-1">
             {row.original.assigned_employees.map((employee) => (
@@ -349,7 +454,7 @@ export default function AdminTasks() {
         // size: 48,
       }),
     ],
-    [expandedRows, updatingStatus, columnHelper]
+    [expandedRows, updatingStatus, columnHelper, toggleRowExpansion]
   );
 
   const table = useReactTable({
@@ -371,7 +476,7 @@ export default function AdminTasks() {
       return (
         row.original.title.toLowerCase().includes(search) ||
         row.original.description.toLowerCase().includes(search) ||
-        row.original.client.name.toLowerCase().includes(search) ||
+        row.original.client?.name.toLowerCase().includes(search) ||
         row.original.category.toLowerCase().includes(search)
       );
     },
@@ -382,16 +487,6 @@ export default function AdminTasks() {
     table.getColumn("status")?.setFilterValue(statusFilter);
     table.getColumn("category")?.setFilterValue(categoryFilter);
   }, [statusFilter, categoryFilter, table]);
-
-  function toggleRowExpansion(taskId: string) {
-    const newExpandedRows = new Set(expandedRows);
-    if (newExpandedRows.has(taskId)) {
-      newExpandedRows.delete(taskId);
-    } else {
-      newExpandedRows.add(taskId);
-    }
-    setExpandedRows(newExpandedRows);
-  }
 
   if (loading) {
     return (
@@ -421,6 +516,14 @@ export default function AdminTasks() {
 
   return (
     <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold">Tasks</h2>
+        <CreateTaskForm
+          assignablePeople={assignablePeople}
+          clients={clients}
+          onTaskCreated={handleTaskCreated}
+        />
+      </div>
       <div className="relative">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
         <Input

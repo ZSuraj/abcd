@@ -57,7 +57,11 @@ export async function fetchTasks() {
   return response;
 }
 
-export async function updateTaskStatus(taskId: string, status: TaskStatus, remarks?: string) {
+export async function updateTaskStatus(
+  taskId: string,
+  status: TaskStatus,
+  remarks?: string
+) {
   // const task = tasks.find((t) => t.id === taskId);
   if (!taskId) return;
 
@@ -638,6 +642,8 @@ export async function updateDailyTaskStatus(
 
   const user = getCurrentUser();
 
+  console.log("asd");
+
   const response = await fetch(`${SERVER_URL}/update-daily-task`, {
     method: "POST",
     headers: {
@@ -649,5 +655,42 @@ export async function updateDailyTaskStatus(
     }),
   });
 
+  return response;
+}
+
+export async function fetchClientsAndManagers() {
+  const user = getCurrentUser();
+  const response = await fetch(`${SERVER_URL}/get-clients-and-managers`, {
+    method: "POST",
+    headers: {
+      Authorization: user?.access_token as string,
+    },
+  });
+  return response;
+}
+
+export async function createTask(
+  title: string,
+  description: string,
+  dueDate: string | null,
+  assignees: string[],
+  clientId: string,
+  priority: "low" | "medium" | "high" = "medium"
+) {
+  const user = getCurrentUser();
+  const response = await fetch(`${SERVER_URL}/create-task`, {
+    method: "POST",
+    headers: {
+      Authorization: user?.access_token as string,
+    },
+    body: JSON.stringify({
+      title,
+      description,
+      dueDate,
+      assignees,
+      clientId,
+      priority,
+    }),
+  });
   return response;
 }

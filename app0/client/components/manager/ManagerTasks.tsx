@@ -27,12 +27,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
-  fetchAllTasks,
   fetchDocument,
   fetchTasks,
   updateTaskStatus,
+  fetchEmployees,
+  fetchClients,
 } from "@/lib/api";
-import { Task } from "@/types";
+import { Task, Client } from "@/types";
 import {
   Search,
   User,
@@ -61,7 +62,9 @@ import {
 import { handleDownloadDocument, handleViewDocument } from "@/lib/utils";
 import { extractOriginalFileName, formatFileSize } from "@/utils";
 import ManagerTasksTable from "./ManagerTasksTable";
+import CreateTaskForm from "../CreateTaskForm";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AssignablePerson } from "@/types";
 
 export default function ManagerTasks() {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -70,6 +73,10 @@ export default function ManagerTasks() {
   const [searchTerm, setSearchTerm] = useState("");
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [updatingStatus, setUpdatingStatus] = useState<string>("");
+  const [assignablePeople, setAssignablePeople] = useState<AssignablePerson[]>(
+    []
+  );
+  const [clients, setClients] = useState<Client[]>([]);
 
   // Filter states
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -92,6 +99,51 @@ export default function ManagerTasks() {
       }
     }
     getTasks();
+  }, []);
+
+  useEffect(() => {
+    async function getAssignablePeople() {
+      try {
+        const [employeesRes, clientsRes] = await Promise.all([
+          fetchEmployees(),
+          fetchClients(),
+        ]);
+
+        const employees: AssignablePerson[] = [];
+        const clients: AssignablePerson[] = [];
+
+        if (employeesRes.ok) {
+          const employeesData = (await employeesRes.json()) as { data: any[] };
+          employeesData.data?.forEach((emp) => {
+            employees.push({
+              id: emp.id,
+              name: emp.name,
+              email: emp.email,
+              role: "employee",
+            });
+          });
+        }
+
+        if (clientsRes.ok) {
+          const clientsData = (await clientsRes.json()) as { data: any[] };
+          clientsData.data?.forEach((client) => {
+            clients.push({
+              id: client.id,
+              name: client.name,
+              email: client.email,
+              role: "client",
+            });
+          });
+
+          setClients(clientsData.data);
+        }
+
+        setAssignablePeople([...employees, ...clients]);
+      } catch (error) {
+        console.error("Error fetching assignable people:", error);
+      }
+    }
+    getAssignablePeople();
   }, []);
 
   useEffect(() => {
@@ -242,11 +294,36 @@ export default function ManagerTasks() {
     );
   }
 
+  const handleTaskCreated = () => {
+    // Refresh the tasks list
+    async function refreshTasks() {
+      try {
+        const res = await fetchTasks();
+        if (res.ok) {
+          const data = (await res.json()) as { data: Task[] };
+          setTasks(data.data || []);
+          setFilteredTasks(data.data || []);
+        }
+      } catch (error) {
+        console.error("Error refreshing tasks:", error);
+      }
+    }
+    refreshTasks();
+  };
+
   return (
     <div className="">
       {/* <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Tasks</h2>
       </div> */}
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-2xl font-bold">Tasks</h2>
+        <CreateTaskForm
+          assignablePeople={assignablePeople}
+          clients={clients}
+          onTaskCreated={handleTaskCreated}
+        />
+      </div>
       <Tabs defaultValue="all" className="w-full space-y-4">
         <TabsList>
           <TabsTrigger value="all">All Tasks</TabsTrigger>

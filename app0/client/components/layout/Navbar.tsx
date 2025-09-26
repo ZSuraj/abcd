@@ -70,7 +70,7 @@ export function Navbar() {
         <SidebarTrigger className="w-4 h-4" />
 
         <div className="flex items-center">
-          {(user?.data.user.role === "admin" ||
+          {/* {(user?.data.user.role === "admin" ||
             user?.data.user.role === "employee") && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -103,15 +103,15 @@ export function Navbar() {
                 )}
               </DropdownMenuContent>
             </DropdownMenu>
-          )}
+          )} */}
 
           {user?.data.user.role === "employee" && (
             <Drawer>
               <DrawerTrigger asChild>
                 <Button
-                  variant="ghost"
-                  size="sm"
-                  className="px-2 cursor-pointer"
+                  // variant="ghost"
+                  // size="sm"
+                  className="mr-2 px-2 cursor-pointer"
                 >
                   <Upload className="h-4 w-4 mr-1" />
                   <span className="font-normal">Upload</span>
@@ -135,7 +135,7 @@ export function Navbar() {
             <DropdownMenuContent className="w-40">
               <DropdownMenuItem
                 onClick={() => {
-                  (logout(), router.push("/login"));
+                  logout(), router.push("/login");
                 }}
               >
                 Log Out

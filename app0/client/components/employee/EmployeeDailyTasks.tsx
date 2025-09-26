@@ -36,6 +36,8 @@ export default function EmployeeDailyTasks() {
     taskId: string,
     currentStatus: TaskStatus
   ) => {
+    console.log(taskId, currentStatus);
+
     const newStatus: TaskStatus = currentStatus;
 
     // Add to updating set for loading indicator
@@ -49,7 +51,7 @@ export default function EmployeeDailyTasks() {
           prevTasks.map((client) => ({
             ...client,
             daily_tasks: client.daily_tasks?.map((task) =>
-              task.id === taskId ? { ...task, status: newStatus } : task
+              task.log_id === taskId ? { ...task, status: newStatus } : task
             ),
           }))
         );
@@ -95,11 +97,12 @@ export default function EmployeeDailyTasks() {
                         <Checkbox
                           checked={task.status === "completed"}
                           onCheckedChange={() =>
-                            task.status === "pending" &&
-                            handleTaskToggle(task.id, task.status)
+                            (task.status === "pending" || 
+                              task.status === "missed") &&
+                            handleTaskToggle(task.log_id, "completed")
                           }
                           disabled={
-                            updatingTasks.has(task.id) ||
+                            updatingTasks.has(task.log_id) ||
                             task.status === "completed"
                           }
                           aria-label={
@@ -117,14 +120,14 @@ export default function EmployeeDailyTasks() {
                         >
                           {task.title}
                         </span>
-                        {updatingTasks.has(task.id) && (
+                        {updatingTasks.has(task.log_id) && (
                           <Loader2 className="h-4 w-4 animate-spin" />
                         )}
                       </div>
                     </CardTitle>
                     <CardDescription className="flex items-center gap-3">
                       <div className="w-4 h-4"></div>
-                      {task.description && (
+                      {task.log_date && (
                         <p
                           className={`text-sm ${
                             task.status === "completed"
@@ -132,7 +135,7 @@ export default function EmployeeDailyTasks() {
                               : "text-gray-600"
                           }`}
                         >
-                          {task.description}
+                          {task.log_date}
                         </p>
                       )}
                     </CardDescription>

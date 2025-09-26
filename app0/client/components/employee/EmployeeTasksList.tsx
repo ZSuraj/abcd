@@ -18,10 +18,24 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { fetchTasks, updateTaskStatus } from "@/lib/api";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  fetchTasks,
+  updateTaskStatus,
+  fetchAllEmployees,
+  fetchClientsAndManagers,
+  createTask,
+  fetchClients,
+} from "@/lib/api";
 import { getCurrentUser } from "@/lib/auth";
-import { handleDownloadDocument, handleViewDocument } from "@/lib/utils";
-import { Document, Task, User } from "@/types";
+import { handleDownloadDocument, handleViewDocument, cn } from "@/lib/utils";
+import { Client, Document, Task, User } from "@/types";
 import {
   extractOriginalFileName,
   formatFileSize,
@@ -35,13 +49,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { formatDistanceToNow, isAfter } from "date-fns";
+import { format, formatDistanceToNow, isAfter } from "date-fns";
 import {
   AlertCircle,
   ArrowDown,
   ArrowRight,
   ArrowUp,
-  Calendar,
+  Calendar as CalendarIcon,
   CalendarDays,
   Clock,
   Download,
@@ -57,6 +71,12 @@ import {
   UserIcon,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import CreateTaskForm from "../CreateTaskForm";
+
+interface ClientOrManager {
+  id: string;
+  name: string;
+}
 
 export default function EmployeeTasksList() {
   const [user, setUser] = useState<User | null>(null);
@@ -64,6 +84,7 @@ export default function EmployeeTasksList() {
     "all"
   );
   const [categoryFilter, setCategoryFilter] = useState<string | "all">("all");
+  const [clientFilter, setClientFilter] = useState<string | "all">("all");
   const [tasks, setTasks] = useState<Task[]>([]);
   const [filteredTasks, setFilteredTasks] = useState<Task[]>([]);
   const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest");
@@ -78,11 +99,45 @@ export default function EmployeeTasksList() {
     useState<Task | null>(null);
   const [remarks, setRemarks] = useState("");
   const [newStatus, setNewStatus] = useState<Task["status"] | null>(null);
+  const [isCreateTaskDialogOpen, setIsCreateTaskDialogOpen] = useState(false);
+  const [newTaskTitle, setNewTaskTitle] = useState("");
+  const [newTaskDescription, setNewTaskDescription] = useState("");
+  const [assignTo, setAssignTo] = useState("");
+  const [clientsAndManagers, setClientsAndManagers] = useState<
+    ClientOrManager[]
+  >([]);
+  const [dueDate, setDueDate] = useState<Date | undefined>();
+  const [selectedClientId, setSelectedClientId] = useState("");
+  const [clients, setClients] = useState<Client[]>([]);
+
+  const [assignToMyself, setAssignToMyself] = useState(true);
 
   useEffect(() => {
     setUser(getCurrentUser());
     getTasks();
+    getClientsAndManagers();
+    getClients();
   }, []);
+
+  const getClientsAndManagers = async () => {
+    const res = await fetchClientsAndManagers();
+    if (res.ok) {
+      const data = (await res.json()) as {
+        data: ClientOrManager[];
+      };
+      setClientsAndManagers(data.data);
+    }
+  };
+
+  const getClients = async () => {
+    const res = await fetchClients();
+    if (res.ok) {
+      const data = (await res.json()) as {
+        data: Client[];
+      };
+      setClients(data.data);
+    }
+  };
 
   const getTasks = async () => {
     const res = (await fetchTasks()) as Response;
@@ -109,6 +164,9 @@ export default function EmployeeTasksList() {
           String(task.category).toLowerCase() === categoryFilter
         );
       })
+      .filter((task) => {
+        return clientFilter === "all" || task.client.id === clientFilter;
+      })
       .sort((a, b) => {
         const diff =
           new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
@@ -123,7 +181,7 @@ export default function EmployeeTasksList() {
 
     setFilteredTasks(sortedTasks);
     // setTasks(sortedTasks);
-  }, [statusFilter, categoryFilter, sortOrder, tasks]);
+  }, [statusFilter, categoryFilter, clientFilter, sortOrder, tasks]);
 
   //   console.log("selectedCategory", categoryFilter);
   // console.log("selctedStatus", statusFilter);
@@ -190,6 +248,57 @@ export default function EmployeeTasksList() {
     setIsQueryDialogOpen(true);
   };
 
+  const handleCreateTask = async () => {
+    if (
+      !newTaskTitle.trim() ||
+      !newTaskDescription.trim() ||
+      (!assignTo && !assignToMyself) ||
+      !selectedClientId.trim()
+    ) {
+      return;
+    }
+
+    const finalAssignTo = assignToMyself ? user?.data.user.id : assignTo;
+
+    // TODO: Implement API call to create task
+    console.log(
+      "Creating task:",
+      newTaskTitle,
+      newTaskDescription,
+      dueDate ? format(dueDate, "yyyy-MM-dd") : null,
+      finalAssignTo ? [finalAssignTo] : [],
+      selectedClientId
+    );
+
+    const res = await createTask(
+      newTaskTitle,
+      newTaskDescription,
+      dueDate ? format(dueDate, "yyyy-MM-dd") : null,
+      finalAssignTo ? [finalAssignTo] : [],
+      selectedClientId,
+      "medium"
+    );
+
+    if (!res.ok) {
+      console.log("Error creating task");
+      return;
+    }
+
+    // Reset form and close dialog
+    setNewTaskTitle("");
+    setNewTaskDescription("");
+    setAssignTo("");
+    setDueDate(undefined);
+    setAssignToMyself(false);
+    setSelectedClientId("");
+    setIsCreateTaskDialogOpen(false);
+
+    // Refresh tasks
+    getTasks();
+
+    alert("Task created successfully!");
+  };
+
   const getFileIcon = (type: string) => {
     switch (type) {
       case "pdf":
@@ -205,6 +314,15 @@ export default function EmployeeTasksList() {
 
   return (
     <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold">Tasks</h2>
+        <CreateTaskForm
+          assignablePeople={clientsAndManagers as any}
+          clients={clients}
+          onTaskCreated={handleCreateTask}
+          user={user || undefined}
+        />
+      </div>
       <div className="flex flex-wrap items-center gap-4">
         <div className="flex items-center gap-3">
           <span className="text-sm text-gray-600">Status</span>
@@ -267,6 +385,136 @@ export default function EmployeeTasksList() {
           </Button>
         </div>
       </div>
+      <Dialog
+        open={isCreateTaskDialogOpen}
+        onOpenChange={setIsCreateTaskDialogOpen}
+      >
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Create New Task</DialogTitle>
+            <DialogDescription>
+              Enter the details for the new task.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="title" className="text-right">
+                Title
+              </Label>
+              <Input
+                id="title"
+                value={newTaskTitle}
+                onChange={(e) => setNewTaskTitle(e.target.value)}
+                className="col-span-3"
+                placeholder="Task title"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-start gap-4">
+              <Label htmlFor="description" className="text-right pt-2">
+                Description
+              </Label>
+              <textarea
+                id="description"
+                value={newTaskDescription}
+                onChange={(e) => setNewTaskDescription(e.target.value)}
+                className="col-span-3 min-h-[80px] p-2 border rounded-md resize-none"
+                placeholder="Task description"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label className="text-right">Due Date</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    data-empty={!dueDate}
+                    className={cn(
+                      "data-[empty=true]:text-muted-foreground w-full justify-start text-left font-normal col-span-3",
+                      !dueDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {dueDate ? (
+                      format(dueDate, "PPP")
+                    ) : (
+                      <span>Pick a date</span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={dueDate}
+                    onSelect={setDueDate}
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label className="text-right">Client</Label>
+              <Select
+                value={selectedClientId}
+                onValueChange={setSelectedClientId}
+              >
+                <SelectTrigger className="col-span-3 w-full">
+                  <SelectValue placeholder="Select client" />
+                </SelectTrigger>
+                <SelectContent>
+                  {clients.map((c) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      {c.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            {/* <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="assignTo" className="text-right">
+                Assign To
+              </Label>
+              <Select
+                value={assignTo}
+                onValueChange={setAssignTo}
+                disabled={assignToMyself}
+              >
+                <SelectTrigger className="col-span-3 w-full">
+                  <SelectValue
+                    placeholder={
+                      assignToMyself
+                        ? "Assigned to yourself"
+                        : "Select client or manager"
+                    }
+                  />
+                </SelectTrigger>
+                <SelectContent>
+                  {clientsAndManagers.map((c) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      {c.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div> */}
+            {/* <div className="grid grid-cols-4 items-center gap-4">
+              <div className="col-span-4 flex items-center space-x-2">
+                <Checkbox
+                  id="assignToMyself"
+                  checked={assignToMyself}
+                  onCheckedChange={(checked) =>
+                    setAssignToMyself(checked as boolean)
+                  }
+                />
+                <Label htmlFor="assignToMyself">Assign to myself</Label>
+              </div>
+            </div> */}
+          </div>
+          <DialogFooter>
+            <Button type="submit" onClick={handleCreateTask}>
+              Assign to me
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       {filteredTasks?.map((task) => {
         const isOverdue =
           task?.due_date &&
@@ -274,284 +522,6 @@ export default function EmployeeTasksList() {
           task?.status !== "completed";
 
         return (
-          // <Card
-          //   key={task?.id}
-          //   className={`transition-all duration-200 gap-0 hover:shadow-md ${
-          //     isOverdue ? "border-red-200 bg-red-50/30" : ""
-          //   }`}
-          // >
-          //   <CardHeader className="pb-3">
-          //     <div className="flex items-start justify-between">
-          //       <div className="space-y-1">
-          //         <CardTitle className="text-lg flex items-center gap-2">
-          //           {task?.title}
-          //           {isOverdue && (
-          //             <AlertCircle className="h-4 w-4 text-red-500" />
-          //           )}
-          //         </CardTitle>
-          //         <CardDescription>{task?.description}</CardDescription>
-          //       </div>
-
-          //       <div className="flex items-center gap-2">
-          //         {/* <Badge
-          //             variant="outline"
-          //             className={getPriorityColor(task?.priority)}
-          //           >
-          //             {task?.priority || "medium"}
-          //           </Badge> */}
-
-          //         {/* 🆕 Category Badge */}
-          //         {task?.category && (
-          //           <Badge variant="secondary" className="text-xs">
-          //             {task?.category}
-          //           </Badge>
-          //         )}
-
-          //         <Badge className={getStatusColor(task?.status)}>
-          //           {task?.status.replace("-", " ").toUpperCase()}
-          //         </Badge>
-          //       </div>
-          //     </div>
-          //   </CardHeader>
-
-          //   <CardContent>
-          //     <div className="flex items-center justify-between">
-          //       <div className="flex items-center gap-4 text-sm text-gray-600">
-          //         <div className="flex items-center gap-1">
-          //           <UserIcon className="h-4 w-4" />
-          //           <span>{task?.client.name}</span>
-          //         </div>
-
-          //         {task?.due_date && (
-          //           <div className="flex items-center gap-1">
-          //             <CalendarDays className="h-4 w-4" />
-          //             <span
-          //               className={isOverdue ? "text-red-600 font-medium" : ""}
-          //             >
-          //               Due{" "}
-          //               {formatDistanceToNow(new Date(task?.due_date), {
-          //                 addSuffix: true,
-          //               })}
-          //             </span>
-          //           </div>
-          //         )}
-
-          //         {task?.updated_at && (
-          //           <div className="flex items-center gap-1">
-          //             <Clock className="h-4 w-4" />
-          //             <span>Updated {timeAgo(task?.updated_at)}</span>
-          //           </div>
-          //         )}
-
-          //         <div className="flex items-center gap-1">
-          //           {task?.priority === "high" ? (
-          //             <ArrowUp className="h-4 w-4" />
-          //           ) : task?.priority === "medium" ? (
-          //             <ArrowRight className="h-4 w-4" />
-          //           ) : (
-          //             <ArrowDown className="h-4 w-4" />
-          //           )}
-          //           <span>
-          //             Priority{" "}
-          //             {task?.priority === "high"
-          //               ? "High"
-          //               : task?.priority === "medium"
-          //               ? "Medium"
-          //               : "Low"}
-          //           </span>
-          //         </div>
-          //       </div>
-
-          //       <div className="flex items-center gap-2">
-          //         <Select
-          //           value={task?.status}
-          //           onValueChange={(value) => {
-          //             const newStatus = value as Task["status"];
-          //             if (
-          //               newStatus === "partially-completed" ||
-          //               newStatus === "in-review"
-          //             ) {
-          //               setSelectedTaskForRemarks(task);
-          //               setNewStatus(newStatus);
-          //               setRemarks("");
-          //               setIsRemarksDialogOpen(true);
-          //             } else {
-          //               handleUpdateTask(task?.id, newStatus);
-          //             }
-          //           }}
-          //         >
-          //           <SelectTrigger className="w-32">
-          //             <SelectValue />
-          //           </SelectTrigger>
-          //           <SelectContent>
-          //             <SelectItem value="pending">Pending</SelectItem>
-          //             <SelectItem value="in-progress">In Progress</SelectItem>
-          //             <SelectItem value="partially-completed">
-          //               Partially Completed
-          //             </SelectItem>
-          //             <SelectItem value="in-review">In Review</SelectItem>
-          //             <SelectItem value="completed">Completed</SelectItem>
-          //           </SelectContent>
-          //         </Select>
-          //       </div>
-          //     </div>
-          //     {task?.remarks && (
-          //       <div className="mt-4 space-y-1 text-sm text-gray-700">
-          //         <div className="font-semibold text-gray-800">Remarks:</div>
-          //         <div
-          //           className="text-gray-700"
-          //           dangerouslySetInnerHTML={{
-          //             __html: task?.remarks.replace(/\n/g, "<br>\n"),
-          //           }}
-          //         />
-          //       </div>
-          //     )}
-          //     <div className="flex justify-between items-end">
-          //       {task?.documents && task?.documents.length > 0 && (
-          //         <div className="mt-4 space-y-1 text-sm text-gray-700">
-          //           <div className="font-semibold text-gray-800">
-          //             Attached Documents:
-          //           </div>
-          //           <ul className="-4 list-disc">
-          //             {task?.documents.map(
-          //               (docKey: Document, index: number) => (
-          //                 <li key={index} className="flex items-center gap-2">
-          //                   <Paperclip className="h-4 w-4" />
-          //                   <span className="truncate max-w-xs">
-          //                     {extractOriginalFileName(docKey.file_path)}
-          //                   </span>
-          //                   <div className="flex items-center justify-end">
-          //                     <Button
-          //                       variant="link"
-          //                       size="sm"
-          //                       onClick={() =>
-          //                         handleViewDocument(docKey.file_path)
-          //                       }
-          //                       className="text-blue-600 hover:underline hover:text-blue-700 text-sm font-normal"
-          //                     >
-          //                       {/* <EyeIcon className="h-4 w-4 text-blue-600" /> */}
-          //                       View
-          //                     </Button>
-          //                     <Button
-          //                       variant="link"
-          //                       size="sm"
-          //                       onClick={() =>
-          //                         handleDownloadDocument(docKey.key)
-          //                       }
-          //                       className="text-blue-600 hover:underline hover:text-blue-700 text-sm font-normal"
-          //                     >
-          //                       {/* <Download className="h-4 w-4 text-blue-600" /> */}
-          //                       Download
-          //                     </Button>
-          //                   </div>
-          //                 </li>
-          //               )
-          //             )}
-          //           </ul>
-          //         </div>
-          //       )}
-          //       <Dialog
-          //         open={
-          //           isQueryDialogOpen && selectedTaskForQuery?.id === task?.id
-          //         }
-          //         onOpenChange={setIsQueryDialogOpen}
-          //       >
-          //         {/* <DialogTrigger asChild>
-          //           <Button
-          //             variant="ghost"
-          //             size="sm"
-          //             onClick={() => openQueryDialog(task)}
-          //             className="gap-1"
-          //           >
-          //             <MessageSquare className="h-4 w-4" />
-          //             Raise Query
-          //           </Button>
-          //         </DialogTrigger> */}
-          //         <DialogContent className="sm:max-w-[425px]">
-          //           <DialogHeader>
-          //             <DialogTitle>Raise Query for Task</DialogTitle>
-          //             <DialogDescription>
-          //               Raise a query regarding &#34;
-          //               {selectedTaskForQuery?.title}&#34;.
-          //             </DialogDescription>
-          //           </DialogHeader>
-          //           <div className="grid gap-4 py-4">
-          //             <div className="grid grid-cols-4 items-center gap-4">
-          //               <Label htmlFor="subject" className="text-right">
-          //                 Subject
-          //               </Label>
-          //               <Input
-          //                 id="subject"
-          //                 value={querySubject}
-          //                 onChange={(e) => setQuerySubject(e.target.value)}
-          //                 className="col-span-3"
-          //                 placeholder="Brief subject of your query"
-          //               />
-          //             </div>
-          //             <div className="grid grid-cols-4 items-start gap-4">
-          //               <Label htmlFor="message" className="text-right pt-2">
-          //                 Message
-          //               </Label>
-          //               <textarea
-          //                 id="message"
-          //                 value={queryMessage}
-          //                 onChange={(e) => setQueryMessage(e.target.value)}
-          //                 className="col-span-3 min-h-[80px] p-2 border rounded-md resize-none"
-          //                 placeholder="Describe your query in detail..."
-          //               />
-          //             </div>
-          //           </div>
-          //           <DialogFooter>
-          //             <Button type="submit" onClick={handleRaiseQuery}>
-          //               Raise Query
-          //             </Button>
-          //           </DialogFooter>
-          //         </DialogContent>
-          //       </Dialog>
-          //       <Dialog
-          //         open={
-          //           isRemarksDialogOpen &&
-          //           selectedTaskForRemarks?.id === task?.id
-          //         }
-          //         onOpenChange={setIsRemarksDialogOpen}
-          //       >
-          //         <DialogContent className="max-w-[425px] lg:max-w-[600px]">
-          //           <DialogHeader>
-          //             <DialogTitle>Add Remarks</DialogTitle>
-          //             <DialogDescription>
-          //               Please provide remarks for changing the status of &#34;
-          //               {selectedTaskForRemarks?.title}&#34; to{" "}
-          //               {newStatus?.replace("-", " ")}.
-          //             </DialogDescription>
-          //           </DialogHeader>
-          //           <div className="grid gap-4 py-4">
-          //             <div className="">
-          //               {/* <Label htmlFor="remarks" className="text-right pt-2">
-          //                 Remarks
-          //               </Label> */}
-          //               <textarea
-          //                 id="remarks"
-          //                 value={remarks}
-          //                 onChange={(e) => setRemarks(e.target.value)}
-          //                 className="w-full min-h-[150px] p-2 border rounded-md resize-none"
-          //                 placeholder="Enter your remarks..."
-          //               />
-          //             </div>
-          //           </div>
-          //           <DialogFooter>
-          //             <Button
-          //               type="submit"
-          //               onClick={handleSubmitRemarks}
-          //               disabled={!remarks}
-          //             >
-          //               Submit
-          //             </Button>
-          //           </DialogFooter>
-          //         </DialogContent>
-          //       </Dialog>
-          //     </div>
-          //   </CardContent>
-          // </Card>
           <div
             key={task.id}
             className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden"
@@ -601,7 +571,7 @@ export default function EmployeeTasksList() {
                     isOverdue ? "text-red-700 font-semibold" : "text-gray-600"
                   }`}
                 >
-                  <Calendar
+                  <CalendarIcon
                     className={`w-4 h-4 mr-2 ${
                       isOverdue ? "text-red-600" : ""
                     }`}
